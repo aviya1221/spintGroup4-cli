@@ -1,6 +1,7 @@
     import React from "react";
     import { useState } from "react";
     import { DataGrid } from "@mui/x-data-grid";
+    
 
     export default function Table() {
     const [input, setInput] = useState("");

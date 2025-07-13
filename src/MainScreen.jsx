@@ -7,8 +7,9 @@ import Members from "./adminComp/Members.jsx";
 export default function MainScreen() {
   return (
     <>
+    <div style={{ marginLeft: '13.75rem'}} >
     <Members></Members>
-    
+    </div>
       {/* <BrowserRouter>
         <Routes>
           <Route path="" element></Route>
