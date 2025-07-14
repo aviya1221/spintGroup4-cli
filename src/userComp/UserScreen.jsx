@@ -25,7 +25,7 @@
         
           <Col xs={12} sm={10} md={8} lg={6} xl={6}>
             <div className="p-3 rounded" style={{ backgroundColor: "#343a40", color: "#fff" }}>
-              
+                <Button>save</Button>
               <h2>Your profile</h2>
               <img src="/Img/1.jpg" alt="Profile" style={{ width: "100px", borderRadius: "50%" }} />
             <div className="mt-3">

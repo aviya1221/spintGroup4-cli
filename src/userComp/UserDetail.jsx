@@ -9,7 +9,12 @@ export default function UserDetails() {
       <input className="form-control mb-2" defaultValue="+972-50-1234567" />
       <label>Website</label>
       <input className="form-control mb-2" defaultValue="https://example.com" />
-
+      <label>email</label>
+      <input type="email" className="form-control mb-2" defaultValue="4Community@gmail.com" />
+      <label>Website</label>
+      <input className="form-control mb-2" defaultValue="https://example.com" />
+      <label>Website</label>
+      <input className="form-control mb-2" defaultValue="https://example.com" />
     </Container>
   );
 }
