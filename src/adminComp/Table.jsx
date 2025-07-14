@@ -37,7 +37,7 @@
     }
     return (
         <>
-        <div className="d-flex flex-column align-items-center gap-3">
+        <div>
             <input onChange={handleSearch} value={input}></input>
             <DataGrid rows={filteredRows} columns={columns} pageSize={5} />
         </div>
