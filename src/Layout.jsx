@@ -1,35 +1,32 @@
-import React from "react";
-import Nav from "./Sidebar";
-import MainScreen from "./MainScreen";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import UserScreen from "./userComp/UserScreen.jsx";
-import AdminScreen from "./adminComp/AdminScreen.jsx";
-import Members from "./adminComp/Members.jsx";
+
+import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar.jsx";
-import Import from "./adminComp/Import.jsx";
+
+import AuthLayout from "./userComp/AuthLayout.jsx";
+
+import AdminLayout from "./adminComp/AdminLayout.jsx";
 
 export default function Layout() {
+  const loc = useLocation();
+  const showSidebar = loc.pathname.startsWith("/admin");
+
   return (
     <>
-      <div className="flex-grow-1 p-4" style={{ marginLeft: "13.75rem" }}>
-        <BrowserRouter>
+        {showSidebar && (
           <div
-            className=" d-flex position-fixed top-0 start-0 vh-100 rounded    "
-            style={{ width: "13.75rem" }}
+            className=" d-flex position-fixed top-0 start-0 vh-100 rounded"
+            style={{ width: "13.75rem"}}
           >
             <Sidebar />
           </div>
-          <div>
-            <Routes>
-              <Route path="/admin" element={<AdminScreen />} />
-              <Route path="/admin/members" element={<Members />} />
-                <Route path='/admin/import' element={<Import/>}/>
-              <Route path="/user" element={<UserScreen />} />
-             
-            </Routes>
+        )}
+       <div style={{marginLeft:showSidebar?'13.75rem':'0'}}>
+          <Routes>
+            <Route path="/admin/*" element={<AdminLayout />} />
+
+            <Route path="user/*" element={<AuthLayout/>} />
+          </Routes>
           </div>
-        </BrowserRouter>
-      </div>
     </>
   );
 }
