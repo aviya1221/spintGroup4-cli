@@ -1,6 +1,5 @@
-    import React, { useState } from "react";
-    import { Container, Row, Col, Button } from "react-bootstrap";
-    import UserDetails from "./UserDetail";
+import React, { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
 
     export default function UserScreen() {
     const [showDetails, setShowDetails] = useState(false);
@@ -52,6 +51,7 @@
         <div style={panelStyle}>
             <UserDetails />
         </div>
-        </div>
-    );
-    }
+        <button>Edit my info</button>
+    </div>
+  );
+}

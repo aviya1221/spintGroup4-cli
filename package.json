@@ -19,9 +19,13 @@
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
+<<<<<<< HEAD
     "react-router-dom": "^7.6.3",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.6"
+=======
+    "react-router-dom": "^7.6.3"
+>>>>>>> c31b7ff1bbfa3b99c1a80b5ad53d26964c9f8a99
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
