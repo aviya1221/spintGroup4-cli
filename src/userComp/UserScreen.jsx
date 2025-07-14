@@ -7,7 +7,7 @@ export default function UserScreen() {
  <div className='userWrap-cont'>
     <div className='userWrapHeader'>
         <h2>your profile</h2>
-        <img src='/userImg/1.jpg'></img>
+        <img src='/Img/1.jpg'></img>
     </div>
     <div>
         <div className="userWrapbutton">

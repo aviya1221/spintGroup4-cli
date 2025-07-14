@@ -18,12 +18,12 @@ export default function Sidebar() {
       <div className="d-flex flex-column align-items-stretch border-top border-bottom border-secondary">
 
   <Link to="/admin" className="text-white text-decoration-none py-2 border-bottom border-secondary">
-      Home</Link>
+      <img src='/Img/temp.png' style={{ width: '6rem', height: 'auto' }}></img></Link>
   <Link to="/admin/members" className="text-white text-decoration-none py-2 border-bottom border-secondary">
-      Manage Members</Link>
+      <img src='/Img/members.png' style={{ width: '6rem', height: 'auto' }}></img></Link>
   <Link to="/admin" className="text-white text-decoration-none py-2 border-bottom border-secondary">
      AI</Link>
-  <Link to="/admin" className="text-white text-decoration-none py-2">
+  <Link to="/admin/import" className="text-white text-decoration-none py-2">
       Import Members</Link>
       </div>
 

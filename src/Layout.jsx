@@ -6,6 +6,7 @@ import UserScreen from "./userComp/UserScreen.jsx";
 import AdminScreen from "./adminComp/AdminScreen.jsx";
 import Members from "./adminComp/Members.jsx";
 import Sidebar from "./Sidebar.jsx";
+import Import from "./adminComp/Import.jsx";
 
 export default function Layout() {
   return (
@@ -22,7 +23,9 @@ export default function Layout() {
             <Routes>
               <Route path="/admin" element={<AdminScreen />} />
               <Route path="/admin/members" element={<Members />} />
+                <Route path='/admin/import' element={<Import/>}/>
               <Route path="/user" element={<UserScreen />} />
+             
             </Routes>
           </div>
         </BrowserRouter>

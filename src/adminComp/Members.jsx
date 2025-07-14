@@ -1,6 +1,7 @@
 import React from "react";
 import Table from "./Table";
 
+
 export default function Members() {
   return (
     <>
@@ -11,8 +12,11 @@ export default function Members() {
             Administer and view member profiles
           </h2>
         </div>
-        <div className="table-responsive">
+        <div>
+
+  
           <Table />
+        
         </div>
       </div>
     </>
