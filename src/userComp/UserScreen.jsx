@@ -1,10 +1,13 @@
 import React, { useState, useRef } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import UserDetails from "./UserDetail";
-import SaveButton from "./SaveButton";
+import SaveButton from "./userButtons/SaveButton.jsx";
+import userStore from '../assets/store.js'
+import InfoButton from "./userButtons/InfoButton.jsx";
 
 export default function UserScreen() {
-  const [showDetails, setShowDetails] = useState(false);
+    const{showDetails}=userStore();
+
 
   const fullNameRef = useRef();
   const currentJobRef = useRef();
@@ -16,6 +19,8 @@ export default function UserScreen() {
   const emailRef = useRef();
   const yearsRef = useRef();
   const skillsRef = useRef();
+  const LastCompRef = useRef();
+  const notificationRef = useRef();
 
   const getValues = () => {
     return {
@@ -27,22 +32,28 @@ export default function UserScreen() {
       "LinkedIn": linkedinRef.current.value,
       "Email": emailRef.current.value,
       "Years of experience": yearsRef.current.value,
-      "Skills": skillsRef.current.value
+      "Skills": skillsRef.current.value,
+      "Last company":LastCompRef.current.value,
+      "notification":notificationRef.current.value
     };
   };
 
-  const panelStyle = {
-    position: "fixed",
-    top: 0,
-    right: showDetails ? 0 : "-100%",
-    width: "300px",
-    height: "100vh",
-    backgroundColor: "#495057",
-    color: "white",
-    padding: "1rem",
-    transition: "right 0.5s ease",
-    zIndex: 1050,
-  };
+ const panelStyle = {
+  position: "fixed",
+  top: 0,
+  right: showDetails ? 0 : "-100%",
+  bottom: 0,              // תופס מה‐top עד הסוף
+  width: "300px",
+  padding: "1rem",
+  backgroundColor: "#495057",
+  color: "white",
+  transition: "right 0.5s ease",
+  zIndex: 1050,
+
+  overflowY: "auto",
+  WebkitOverflowScrolling: "touch", 
+};
+
 
   return (
     <div style={{ position: "relative" }}>
@@ -68,11 +79,8 @@ export default function UserScreen() {
 
            <div className="d-flex justify-content-around align-items-center mt-3">
             <SaveButton getValues={getValues} />
-
-                <Button variant="secondary" className="me-2"
-                    onClick={() => setShowDetails(!showDetails)}>
-                    {showDetails ? "Close details" : "Edit more info"}
-                </Button>
+            
+            <InfoButton/>
 
             </div>
 

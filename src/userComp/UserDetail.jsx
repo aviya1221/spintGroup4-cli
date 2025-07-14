@@ -1,9 +1,18 @@
 import React from "react";
 import { Container } from "react-bootstrap";
+import InfoButton from "./userButtons/InfoButton";
+import AgreeButton from "./userButtons/AgreeButton";
 
 export default function UserDetails({ refs }) {
   return (
-    <Container fluid className="p-4" style={{ backgroundColor: "#495057", color: "#fff", height: "100vh" }}>
+    <Container
+  fluid
+  className="p-4"
+  style={{
+    backgroundColor: "#495057",
+    color: "#fff"
+  }}
+>
       <h3>Additional user details</h3>
       <label>Phone</label>
       <input ref={refs.phoneRef} className="form-control mb-2" defaultValue="+972-50-1234567" />
@@ -15,6 +24,16 @@ export default function UserDetails({ refs }) {
       <input ref={refs.yearsRef} type="number" className="form-control mb-2" defaultValue="10" />
       <label>Skills</label>
       <input ref={refs.skillsRef} className="form-control mb-2" defaultValue="HTML,CSS" />
+      <label>Last company</label>
+      <input ref={refs.LastCompRef} className="form-control mb-2" defaultValue="Target,Meta" />
+      <label className="mt-3">notification</label>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "3rem" }}>
+        <AgreeButton />
+      </div>
+
+      <div>
+        <InfoButton />
+      </div>
     </Container>
   );
 }
