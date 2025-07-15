@@ -6,22 +6,18 @@ import UserDetail from "./UserDetail";
 
 export default function UserLayout() {
   return (
-    <div
+       <div
+      className="w-100 min-vh-100 d-flex justify-content-center rounded"
       style={{
-        width: "100vw",
-        minHeight: "100vh",
         backgroundImage: "url('/Img/background.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        paddingTop:'5rem'
       }}
     >
-      <div style={{ width: "100%", maxWidth: "800px" }}>
+      <div className="w-100" style={{ maxWidth: "800px" }}>
         <Routes>
-          {/* <Route path="" element={<Login />} /> */}
           <Route path="" element={<Welcome />} />
           <Route path="profile" element={<UserScreen />} />
           <Route path="profile/detail" element={<UserDetail />} />

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import ProfileMember from './ProfileMember';
 
 export default function Table() {
   const [rows, setRows] = useState([]);
-  const [page, setPage] = useState(0); // אפס מבוסס
+  const [filterRows, setFilterRows] = useState([]);
+  const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const [rowCount, setRowCount] = useState(0); // סה"כ שורות במסד הנתונים
+  const [rowCount, setRowCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
   const columns = [
     { field: "english_name", headerName: "Name", minWidth: 120, flex: 1 },
@@ -21,37 +24,47 @@ export default function Table() {
   const fetchMembers = async (currentPage) => {
     setLoading(true);
     try {
-        const res = await fetch(`/api/members/getPageMembers/${currentPage}`);
-        if (!res.ok) throw new Error("Network response was not ok");
-      
+      const res = await fetch(`/api/members/getPageMembers/${currentPage}`);
+      if (!res.ok) throw new Error("Network response was not ok");
+
       const data = await res.json();
       console.log("data from server:", data);
-  
-      // כאן הפתרון:
+
       const formatted = data.map((member) => ({
         ...member,
         id: member.member_id,
       }));
-      
+
       setRows(formatted);
-      setRowCount(formatted.length); // אם אין לך total count מהשרת
-      
+      setFilterRows(formatted);
+      setRowCount(formatted.length);
     } catch (err) {
       console.error("Failed to fetch members:", err);
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   useEffect(() => {
-    fetchMembers(page, pageSize);
+    fetchMembers(page);
   }, [page, pageSize]);
 
   const handleSearch = (e) => {
-    setInput(e.target.value);
-    // כאן אתה יכול לממש חיפוש מצד השרת אם תרצה
+    const val = e.target.value;
+    setInput(val);
+
+    if (val === "") {
+      setFilterRows(rows);
+      return;
+    }
+
+    const filtered = rows.filter((row) =>
+      Object.values(row).some((field) =>
+        String(field).toLowerCase().includes(val.toLowerCase())
+      )
+    );
+
+    setFilterRows(filtered);
   };
 
   return (
@@ -65,7 +78,7 @@ export default function Table() {
       <div style={{ width: "100%", overflowX: "auto" }}>
         <div style={{ minWidth: "800px" }}>
           <DataGrid
-            rows={rows}
+            rows={filterRows}
             columns={columns}
             pageSize={pageSize}
             onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
@@ -75,9 +88,13 @@ export default function Table() {
             onPageChange={(newPage) => setPage(newPage)}
             loading={loading}
             autoHeight
+            onRowClick={(params) => {
+              setSelectedRowId(params.id);
+            }}
           />
         </div>
       </div>
+      {selectedRowId && <ProfileMember />}
     </div>
   );
 }
