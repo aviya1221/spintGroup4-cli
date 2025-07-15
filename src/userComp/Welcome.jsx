@@ -15,7 +15,7 @@ export default function Welcome() {
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center vh-100">
+      className="d-flex justify-content-center vh-50">
       <div
         className="p-5 rounded"
         style={{

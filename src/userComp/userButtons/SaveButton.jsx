@@ -10,7 +10,7 @@ export default function SaveButton({ getValues }) {
   return (
     <Button
       variant="secondary"
-      className="ms-2"
+      className=""
       onClick={handleClick}
     >
       Save
