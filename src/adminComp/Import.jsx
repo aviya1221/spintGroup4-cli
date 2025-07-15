@@ -24,7 +24,7 @@ export default function Import() {
 
       <input
         type="file"
-        accept=".xlsx,.xls"
+        accept=".xlsx,.xls,.odc"
         onChange={handleFileUpload}
         className="form-control w-auto"
       />

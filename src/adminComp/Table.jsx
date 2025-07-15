@@ -1,21 +1,26 @@
     import React from "react";
-    import { useState } from "react";
+    import { useState,useEffect } from "react";
     import { DataGrid } from "@mui/x-data-grid";
+    import adminStore from '../assets/mangerStore';
+    import ProfileMember from './ProfileMember';
     
 
     export default function Table() {
     const [input, setInput] = useState("");
+      const {selctedRowId,setSelctedRowId,data}=adminStore();
+    const [filteredRows,setFilterRows]=useState(data);
 
-
-
+useEffect(() => {
+       setFilterRows(data);
+  }, [data]);
 
     const columns = [
-        { field: "full_name", headerName: "Name", width: 90 },
+        { field: "full_name", headerName: "Name", width: 120 },
         { field: "phone", headerName: "phone", width: 150 },
         { field: "email", headerName: "Email", width: 200 },
         { field: "city", headerName: "City", width: 150 },
         { field: "role", headerName: "Role", width: 150 },
-        { field: "experience", headerName: "Experience", width: 150 },
+        { field: "years_of_experience", headerName: "Experience", width: 150 },
     ];
 
     const rows = [
@@ -63,11 +68,11 @@
           city: "Netanya",
           role: "Product",
           experience: 6,
-        },
+        },  
       ];
       
 
-    const [filteredRows,setFilterRows]=useState(rows);
+
 
     const handleSearch=(e)=>{
         setInput(e.target.value);
@@ -85,8 +90,19 @@
         <>
         <div className="d-flex flex-column align-items-center gap-3">
             <input onChange={handleSearch} value={input}></input>
-            <DataGrid rows={filteredRows} columns={columns} pageSize={5} />
+            <div style={{ width: "80%", overflowX: "auto" }}>
+            <div style={{ minWidth: 600 }}>
+              <DataGrid
+                 rows={filteredRows}
+                 columns={columns}
+                 pageSize={5}
+                 onRowClick={(params)=>{
+                    setSelctedRowId(params.id)
+                 }}/>
+  </div>
+</div>
         </div>
+        {selctedRowId>0&&<ProfileMember/>}
         </>
     );
     }
