@@ -1,83 +1,92 @@
-import React, { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+    import React from "react";
+    import { useState } from "react";
+    import { DataGrid } from "@mui/x-data-grid";
+    
 
-export default function Table() {
-  const [rows, setRows] = useState([]);
-  const [page, setPage] = useState(0); // אפס מבוסס
-  const [pageSize, setPageSize] = useState(25);
-  const [rowCount, setRowCount] = useState(0); // סה"כ שורות במסד הנתונים
-  const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
+    export default function Table() {
+    const [input, setInput] = useState("");
 
-  const columns = [
-    { field: "english_name", headerName: "Name", minWidth: 120, flex: 1 },
-    { field: "phone", headerName: "Phone", minWidth: 150, flex: 1 },
-    { field: "email", headerName: "Email", minWidth: 200, flex: 1 },
-    { field: "city", headerName: "City", minWidth: 150, flex: 1 },
-    { field: "role", headerName: "Role", minWidth: 150, flex: 1 },
-    { field: "years_of_experience", headerName: "Experience", minWidth: 100, flex: 1 },
-  ];
 
-  const fetchMembers = async (currentPage) => {
-    setLoading(true);
-    try {
-        const res = await fetch(`/api/members/getPageMembers/${currentPage}`);
-        if (!res.ok) throw new Error("Network response was not ok");
+
+
+    const columns = [
+        { field: "full_name", headerName: "Name", width: 90 },
+        { field: "phone", headerName: "phone", width: 150 },
+        { field: "email", headerName: "Email", width: 200 },
+        { field: "city", headerName: "City", width: 150 },
+        { field: "role", headerName: "Role", width: 150 },
+        { field: "experience", headerName: "Experience", width: 150 },
+    ];
+
+    const rows = [
+        {
+          id: 1,
+          full_name: "Alice Johnson",
+          phone: "052-1234567",
+          email: "alice@example.com",
+          city: "Tel Aviv",
+          role: "Frontend",
+          experience: 3,
+        },
+        {
+          id: 2,
+          full_name: "Bob Smith",
+          phone: "050-9876543",
+          email: "bob@example.com",
+          city: "Jerusalem",
+          role: "Backend",
+          experience: 5,
+        },
+        {
+          id: 3,
+          full_name: "Charlie Brown",
+          phone: "053-5678910",
+          email: "charlie@example.com",
+          city: "Haifa",
+          role: "DevOps",
+          experience: 2,
+        },
+        {
+          id: 4,
+          full_name: "Dana Levi",
+          phone: "054-1122334",
+          email: "dana@example.com",
+          city: "Be'er Sheva",
+          role: "QA",
+          experience: 4,
+        },
+        {
+          id: 5,
+          full_name: "Eli Cohen",
+          phone: "058-4455667",
+          email: "eli@example.com",
+          city: "Netanya",
+          role: "Product",
+          experience: 6,
+        },
+      ];
       
-      const data = await res.json();
-      console.log("data from server:", data);
-  
-      // כאן הפתרון:
-      const formatted = data.map((member) => ({
-        ...member,
-        id: member.member_id,
-      }));
-      
-      setRows(formatted);
-      setRowCount(formatted.length); // אם אין לך total count מהשרת
-      
-    } catch (err) {
-      console.error("Failed to fetch members:", err);
-    } finally {
-      setLoading(false);
+
+    const [filteredRows,setFilterRows]=useState(rows);
+
+    const handleSearch=(e)=>{
+        setInput(e.target.value);
+
+        const filterResult=rows.filter((currentRow)=>{
+          return  Object.values(currentRow).some(((check)=>{
+                return String(check).toLowerCase().includes(e.target.value.toLowerCase())
+            }))
+        })
+        setFilterRows(filterResult);
+        if(e.target.value==="")
+            setFilterRows(rows);
     }
-  };
-  
-  
-
-  useEffect(() => {
-    fetchMembers(page, pageSize);
-  }, [page, pageSize]);
-
-  const handleSearch = (e) => {
-    setInput(e.target.value);
-    // כאן אתה יכול לממש חיפוש מצד השרת אם תרצה
-  };
-
-  return (
-    <div className="d-flex flex-column align-items-center gap-3" style={{ padding: "1rem" }}>
-      <input
-        onChange={handleSearch}
-        value={input}
-        placeholder="Search..."
-        style={{ padding: "8px", width: "80%", maxWidth: "400px" }}
-      />
-      <div style={{ width: "100%", overflowX: "auto" }}>
-        <div style={{ minWidth: "800px" }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            pageSize={pageSize}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            pagination
-            paginationMode="server"
-            rowCount={rowCount}
-            onPageChange={(newPage) => setPage(newPage)}
-            loading={loading}
-            autoHeight
-          />
+    return (
+        <>
+        <div className="d-flex flex-column align-items-center gap-3">
+            <input onChange={handleSearch} value={input}></input>
+            <DataGrid rows={filteredRows} columns={columns} pageSize={5} />
         </div>
-      </div>
-    </div>
-  );
-}
+        </>
+    );
+    }

@@ -9,6 +9,7 @@ import AdminLayout from "./adminComp/AdminLayout.jsx";
 export default function Layout() {
   const loc = useLocation();
   const showSidebar = loc.pathname.startsWith("/admin");
+  
 
   return (
     <>
