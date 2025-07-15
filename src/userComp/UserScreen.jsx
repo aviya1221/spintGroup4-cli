@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import UserDetails from "./UserDetail";
 import SaveButton from "./userButtons/SaveButton.jsx";
-import userStore from '../assets/store.js'
+import userStore from '../assets/clientStore.js'
 import InfoButton from "./userButtons/InfoButton.jsx";
 
 export default function UserScreen() {

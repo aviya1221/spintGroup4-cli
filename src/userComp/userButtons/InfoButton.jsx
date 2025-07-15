@@ -1,5 +1,5 @@
 import React from 'react';
-import userStore from '../../assets/store.js'
+import userStore from '../../assets/clientStore.js'
 import { Button } from 'react-bootstrap';
 
 export default function InfoButton() {
