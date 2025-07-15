@@ -1,106 +1,178 @@
 import { useState, useRef } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import UserDetails from "./UserDetail";
-import SaveButton from "./SaveButton.jsx";
-import userStore from '../assets/clientStore.js'
-import InfoButton from "./userButtons/InfoButton.jsx";
+import PersonalInfo     from "./PersonalInfo";
+import JobInfo          from "./JobInfo";
+import CategorySelector from "./CategorySelector";
+import SaveButton       from "./SaveButton.jsx";
+
 
 export default function UserScreen() {
-    const{showDetails}=userStore();
+  const [view, setView] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
-
-  const fullNameRef = useRef();
-  const currentJobRef = useRef();
-  const companyRef = useRef();
-  const cityRef = useRef();
-
-  const phoneRef = useRef();
-  const linkedinRef = useRef();
-  const emailRef = useRef();
-  const yearsRef = useRef();
-  const skillsRef = useRef();
-  const LastCompRef = useRef();
+  // refs לכל השדות
+  const fullNameRef     = useRef();
+  const currentJobRef   = useRef();
+  const companyRef      = useRef();
+  const cityRef         = useRef();
+  const phoneRef        = useRef();
+  const linkedinRef     = useRef();
+  const emailRef        = useRef();
+  const yearsRef        = useRef();
+  const skillsRef       = useRef();
+  const LastCompRef     = useRef();
   const notificationRef = useRef();
+  const categoryRef     = useRef();
 
-  const getValues = () => {
-    return {
-      "Full Name": fullNameRef.current.value,
-      "Current Job": currentJobRef.current.value,
-      "Company": companyRef.current.value,
-      "City": cityRef.current.value,
-      "Phone": phoneRef.current.value,
-      "LinkedIn": linkedinRef.current.value,
-      "Email": emailRef.current.value,
-      "Years of experience": yearsRef.current.value,
-      "Skills": skillsRef.current.value,
-      "Last company":LastCompRef.current.value,
-      "notification":notificationRef.current.value
-    };
+  // toggle לבחירה/ביטול קטגוריה
+  const toggleCategory = opt => {
+    setSelectedCategories(prev =>
+      prev.includes(opt)
+        ? prev.filter(x => x !== opt)
+        : [...prev, opt]
+    );
   };
 
- const panelStyle = {
-  position: "fixed",
-  top: 0,
-  right: showDetails ? 0 : "-100%",
-  bottom: 0,              // תופס מה‐top עד הסוף
-  width: "300px",
-  padding: "1rem",
-  backgroundColor: "#495057",
-  color: "white",
-  transition: "right 0.5s ease",
-  zIndex: 1050,
+  // צבעי הכפתורים
+  const normalBg   = "#506a84ff";
+  const normalBd   = "#252b30ff";
+  const hoverBg    = "#40576eff";
+  const hoverBd    = "#1f2327ff";
 
-  overflowY: "auto",
-  WebkitOverflowScrolling: "touch", 
-};
+  // NavBtn עם הובר
+  function NavBtn({ children, onClick }) {
+    const [hover, setHover] = useState(false);
+    return (
+      <Button
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={onClick}
+        style={{
+          backgroundColor: hover ? hoverBg : normalBg,
+          borderColor:     hover ? hoverBd : normalBd,
+          boxShadow:       "none",
+          fontWeight:      500,
+          color:           "white"
+        }}
+      >
+        {children}
+      </Button>
+    );
+  }
 
+  const getValues = () => ({
+    "Full Name":           fullNameRef.current.value,
+    "Current Job":         currentJobRef.current.value,
+    "Company":             companyRef.current.value,
+    "City":                cityRef.current.value,
+    "Phone":               phoneRef.current.value,
+    "LinkedIn":            linkedinRef.current.value,
+    "Email":               emailRef.current.value,
+    "Years of experience": yearsRef.current.value,
+    "Skills":              skillsRef.current.value,
+    "Last company":        LastCompRef.current.value,
+    "Notification":        notificationRef.current.checked,
+    "SelectedCategories":  selectedCategories
+  });
+
+  const panelStyle = {
+    position:               "fixed",
+    top:                    0,
+    right:                  view ? 0 : "-100%",
+    bottom:                 0,
+    width:                  "100%",
+    maxWidth:               "300px",
+    height:                 "100vh",
+    padding:                "1rem",
+    backgroundColor:        "#495057",
+    color:                  "white",
+    transition:             "right 0.4s ease",
+    zIndex:                 1050,
+    overflowY:              "auto",
+    WebkitOverflowScrolling:"touch"
+  };
 
   return (
     <div style={{ position: "relative" }}>
+      {/* כרטיס ראשי */}
       <Container fluid className="p-4">
         <Row className="justify-content-center">
-          <Col xs={12} sm={10} md={8} lg={6} xl={6}>
-            <div className="p-3 rounded" style={{ backgroundColor: "#343a40", color: "#fff", position: "relative" }}>
-              
-              <h2>Your profile</h2>
-              <img src="/Img/1.jpg" alt="Profile" style={{ width: "100px", borderRadius: "50%" }} />
-              <div className="mt-3">
-                <label>Full Name</label>
-                <input ref={fullNameRef} className="form-control mb-2 mx-auto" defaultValue="John Doe" style={{ width: "60%", textAlign: "center" }} />
-                <label>Current Job</label>
-                <input ref={currentJobRef} className="form-control mb-2 mx-auto" defaultValue="Developer" style={{ width: "60%", textAlign: "center" }} />
-                <label>Company</label>
-                <input ref={companyRef} className="form-control mb-2 mx-auto" defaultValue="Company" style={{ width: "60%", textAlign: "center" }} />
-                <label>City</label>
-                <input ref={cityRef} className="form-control mb-2 mx-auto" defaultValue="Tel Aviv" style={{ width: "60%", textAlign: "center" }} />
+          <Col xs={12} sm={10} md={8} lg={6}>
+            <div className="p-3 text-white text-center">
+              <h2>Your Profile</h2>
+              <img
+                src="/Img/1.jpg"
+                alt="Profile"
+                style={{ width: "100px", borderRadius: "50%" }}
+              />
+
+              <div className="mt-4 d-grid gap-2">
+                <NavBtn onClick={() => setView("personal")}>
+                  Personal Info
+                </NavBtn>
+                <NavBtn onClick={() => setView("job")}>
+                  Job Info
+                </NavBtn>
+                <NavBtn onClick={() => setView("category")}>
+                  Category Selector
+                </NavBtn>
               </div>
 
-
-
-           <div className="d-flex justify-content-around align-items-center mt-3">
-            <SaveButton getValues={getValues} />
-            
-            <InfoButton/>
-
+              <div className="d-flex justify-content-around align-items-center mt-3">
+                <SaveButton getValues={getValues} />
+              </div>
             </div>
-
-        </div>
           </Col>
         </Row>
       </Container>
 
+      {/* סקשן צדדי */}
       <div style={panelStyle}>
-        <UserDetails
-          refs={{
-            phoneRef,
-            linkedinRef,
-            emailRef,
-            yearsRef,
-            skillsRef,
-            LastCompRef,
-            notificationRef
-          }}
-        />
+        {view === "personal" && (
+          <PersonalInfo
+            refs={{
+              fullNameRef,
+              currentJobRef,
+              companyRef,
+              cityRef,
+              phoneRef,
+              linkedinRef,
+              emailRef,
+              yearsRef,
+              skillsRef,
+              LastCompRef,
+              notificationRef,
+              categoryRef
+            }}
+            onBack={() => setView(null)}
+          />
+        )}
+        {view === "job" && (
+          <JobInfo
+            refs={{
+              fullNameRef,
+              currentJobRef,
+              companyRef,
+              cityRef,
+              phoneRef,
+              linkedinRef,
+              emailRef,
+              yearsRef,
+              skillsRef,
+              LastCompRef,
+              notificationRef,
+              categoryRef
+            }}
+            onBack={() => setView(null)}
+          />
+        )}
+        {view === "category" && (
+          <CategorySelector
+            selectedCategories={selectedCategories}
+            toggleCategory={toggleCategory}
+            onBack={() => setView(null)}
+          />
+        )}
       </div>
     </div>
   );
