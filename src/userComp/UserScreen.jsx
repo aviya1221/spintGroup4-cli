@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import PersonalInfo     from "./PersonalInfo";
 import JobInfo          from "./JobInfo";
 import CategorySelector from "./CategorySelector";
-import SaveButton       from "./userButtons/SaveButton.jsx";
+import SaveButton       from "./SaveButton.jsx";
+
 
 export default function UserScreen() {
   const [view, setView] = useState(null);

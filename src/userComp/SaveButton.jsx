@@ -3,11 +3,14 @@ import { Button } from "react-bootstrap";
 
 export default function SaveButton({ getValues }) {
   const handleClick = async () => {
+    console.log("SaveButton clicked");
+    console.log("getValues function:", getValues);
     const rawValues = getValues();
+    console.log("Raw values from getValues:", rawValues);
 
     // מיפוי השדות לשמות המדויקים שהבקאנד מצפה להם
     const values = {
-      //full_name: rawValues["Full Name"],
+      full_name: rawValues["Full Name"],
       english_name: rawValues["Full Name"],
       phone: rawValues["Phone"],
       email: rawValues["Email"],
@@ -16,10 +19,16 @@ export default function SaveButton({ getValues }) {
       current_company: rawValues["Company"],
       years_of_experience: parseInt(rawValues["Years of experience"]) || 0,
       linkedin_url: rawValues["LinkedIn"],
+      facebook_url: rawValues["Facebook"] || "",
+      picture: rawValues["Picture"] || "",
+      community_value: rawValues["Community Value"] || "Active member",
       skills: rawValues["Skills"],
-      // אפשר להוסיף גם את השדות הנוספים בהמשך כמו:
-      // english_name, facebook_url, wants_updates וכו'
+      wants_updates: true, // Assuming this is always true
+      admin_notes: rawValues["Admin Notes"] || "",
+      additional_info: rawValues["Additional Info"] || ""
     };
+    
+    
 
     console.log("Values to save:", values);
 
