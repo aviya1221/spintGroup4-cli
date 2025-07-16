@@ -14,10 +14,9 @@ export default function Welcome() {
   };
 
   return (
-    <div
-      className="d-flex justify-content-center vh-50">
+    <div className="d-flex justify-content-center vh-50">
       <div
-        className="p-5 rounded"
+        className="p-4 rounded"
         style={{
           backgroundColor: '#343a40',
           width: '100%',
@@ -25,10 +24,24 @@ export default function Welcome() {
           color: '#fff',
         }}
       >
-        <h2 className="text-center mb-4" style={{ fontSize: '2rem' }}>Welcome</h2>
+        <img
+          src="/Img/logo.png"
+          alt="Logo"
+          className="d-block mx-auto"
+          style={{ maxWidth: '140px', height: 'auto' }}
+        />
+        <h2
+          className="text-center mt-2 mb-4"
+          style={{ fontSize: '2rem' }}
+        >
+          Welcome to 4Community
+        </h2>
+
         <form>
           <div className="mb-3">
-            <p style={{ fontSize: '1.1rem' }}>Hey, enter here your LinkedIn link:</p>
+            <p style={{ fontSize: '1.1rem' }}>
+              Hey, enter here your LinkedIn link:
+            </p>
           </div>
           <div className="mb-3">
             <label>LinkedIn</label>
@@ -39,15 +52,17 @@ export default function Welcome() {
               style={{ backgroundColor: '#495057', border: 'none', color: '#fff' }}
             />
           </div>
-          <Link to={'/user/profile'}><button
-            type="submit"
-            className="btn"
-            style={buttonStyle}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-          >
-            Enter
-          </button></Link>
+          <Link to={'/user/profile'}>
+            <button
+              type="submit"
+              className="btn"
+              style={buttonStyle}
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
+            >
+              Enter
+            </button>
+          </Link>
         </form>
       </div>
     </div>
