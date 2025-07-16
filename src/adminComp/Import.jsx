@@ -3,35 +3,36 @@ import React from 'react';
 export default function Import() {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
-
     reader.onload = async (evt) => {
-      const base64Data = evt.target.result; // כולל גם את ה-`data:...;base64,` בהתחלה
-
-      console.log('📥 Base64 encoded file:', base64Data);
+      const fullDataUrl = evt.target.result;       // "data:…;base64,AAAA…"
+      const base64Data  = fullDataUrl.split(',')[1];
+      console.log(base64Data); // רק החלק אחרי ה‑prefix
 
       try {
-        const response = await fetch('http://localhost:5000/api/members/saveMembers', {
+        const response = await fetch('/api/members/saveMembers', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file: base64Data,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64: base64Data }),
         });
 
-        const data = await response.json();
+        console.log('🛑 status:', response.status);
+        const text = await response.text();
+        console.log('🛑 raw body:', text);
 
-        if (response.ok) {
-          alert('✅ File uploaded successfully!');
-          console.log('Server response:', data);
-        } else {
-          alert('❌ Upload failed: ' + data.message);
+        if (!response.ok) {
+          alert('❌ Upload failed: ' + (text || response.statusText));
+          return;
         }
+
+        const data = JSON.parse(text);
+        alert('✅ File uploaded!');
+        console.log('✅ response:', data);
       } catch (err) {
-        console.error('Error uploading file:', err);
-        alert('❌ Error uploading file');
+        console.error('🚨 Error uploading file:', err);
+        alert('❌ Error uploading file – בדוק קונסול');
       }
     };
 
