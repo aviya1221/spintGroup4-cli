@@ -1,42 +1,39 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Welcome() {
-  const [hover, setHover] = useState(false);
+  const [hoverSend, setHoverSend] = useState(false);
+  const [hoverManual, setHoverManual] = useState(false);
   const [linkedinURL, setLinkedinURL] = useState("");
   const navigate = useNavigate();
 
-  const buttonStyle = {
-    backgroundColor: hover ? '#ced4da' : '#adb5bd',
-    color: '#212529',
+  const baseButtonStyle = {
     border: 'none',
     width: '100%',
     fontSize: '1.2rem',
     padding: '0.75rem',
+    marginTop: '0.5rem',
+    transition: 'background-color 0.2s ease',
   };
 
-  const handleGoToProfile = () => {
-    navigate('/user/profile');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(linkedinURL);
+  const handleSendURL = async () => {
     try {
       const res = await fetch('/api/members/postDetailsFromLinkedIn', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ linkedin_url: linkedinURL }),
       });
-      
+
       if (!res.ok) throw new Error('Failed to send URL');
 
       navigate('/user/profile');
     } catch (err) {
       console.error("Error:", err);
     }
+  };
+
+  const handleManualEntry = () => {
+    navigate('/user/profile');
   };
 
   return (
@@ -60,36 +57,52 @@ export default function Welcome() {
           Welcome to 4Community
         </h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <input
-              type="url"
-              className="form-control"
-              placeholder="Connect with linkedin profile"
-              style={{
-                backgroundColor: '#adb5bd',
-                border: '1px solid #6c757d',
-                color: '#495057',
-                fontSize: '1.2rem',
-                padding: '0.75rem',
-                borderRadius: '0.25rem',
-                paddingLeft: '5rem',
-              }}
-              value={linkedinURL}
-              onChange={(e) => setLinkedinURL(e.target.value)}
-            />
-          </div>
-            <button
-              type="submit"
-              className="btn"
-              style={buttonStyle}
-              onClick={handleGoToProfile}
-              onMouseEnter={() => setHover(true)}
-              onMouseLeave={() => setHover(false)}
-            >
-              Enter your details
-            </button>
-        </form>
+        <input
+          type="url"
+          className="form-control"
+          placeholder="Enter Link URL"
+          style={{
+            backgroundColor: '#adb5bd',
+            border: '1px solid #6c757d',
+            color: '#495057',
+            fontSize: '1.2rem',
+            padding: '0.75rem',
+            borderRadius: '0.25rem',
+          }}
+          value={linkedinURL}
+          onChange={(e) => setLinkedinURL(e.target.value)}
+        />
+
+        {/* כפתור שליחה */}
+        <button
+          className="btn"
+          style={{
+            ...baseButtonStyle,
+            backgroundColor: hoverSend ? '#dee2e6' : '#adb5bd',
+            color: '#212529',
+          }}
+          onClick={handleSendURL}
+          onMouseEnter={() => setHoverSend(true)}
+          onMouseLeave={() => setHoverSend(false)}
+          disabled={!linkedinURL}
+        >
+          Send URL
+        </button>
+
+        {/* כפתור מילוי ידני */}
+        <button
+          className="btn"
+          style={{
+            ...baseButtonStyle,
+            backgroundColor: hoverManual ? '#dee2e6' : '#adb5bd',
+            color: '#212529',
+          }}
+          onClick={handleManualEntry}
+          onMouseEnter={() => setHoverManual(true)}
+          onMouseLeave={() => setHoverManual(false)}
+        >
+          Enter Your Details
+        </button>
       </div>
     </div>
   );
