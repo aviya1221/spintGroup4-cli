@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Welcome() {
-  const [hover, setHover] = useState(false);
+  const [hoverSend, setHoverSend] = useState(false);
+  const [hoverManual, setHoverManual] = useState(false);
   const [linkedinURL, setLinkedinURL] = useState("");
   const navigate = useNavigate();
 
-  const buttonStyle = {
-    backgroundColor: hover ? '#ced4da' : '#adb5bd',
-    color: '#212529',
+  const baseButtonStyle = {
     border: 'none',
     width: '100%',
     fontSize: '1.2rem',
     padding: '0.75rem',
     marginTop: '0.5rem',
+    transition: 'background-color 0.2s ease',
   };
 
   const handleSendURL = async () => {
@@ -57,7 +57,6 @@ export default function Welcome() {
           Welcome to 4Community
         </h2>
 
-        {/* input במקום כפתור */}
         <input
           type="url"
           className="form-control"
@@ -74,21 +73,33 @@ export default function Welcome() {
           onChange={(e) => setLinkedinURL(e.target.value)}
         />
 
-        {/* כפתור 1: שלח לינק */}
+        {/* כפתור שליחה */}
         <button
           className="btn"
-          style={buttonStyle}
+          style={{
+            ...baseButtonStyle,
+            backgroundColor: hoverSend ? '#dee2e6' : '#adb5bd',
+            color: '#212529',
+          }}
           onClick={handleSendURL}
+          onMouseEnter={() => setHoverSend(true)}
+          onMouseLeave={() => setHoverSend(false)}
           disabled={!linkedinURL}
         >
           Send URL
         </button>
 
-        {/* כפתור 2: כניסה להזנת פרטים */}
+        {/* כפתור מילוי ידני */}
         <button
           className="btn"
-          style={buttonStyle}
+          style={{
+            ...baseButtonStyle,
+            backgroundColor: hoverManual ? '#dee2e6' : '#adb5bd',
+            color: '#212529',
+          }}
           onClick={handleManualEntry}
+          onMouseEnter={() => setHoverManual(true)}
+          onMouseLeave={() => setHoverManual(false)}
         >
           Enter Your Details
         </button>
