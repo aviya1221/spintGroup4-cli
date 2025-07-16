@@ -1,11 +1,8 @@
+// src/components/CategorySelector.jsx
 import React from "react";
 import { Badge, Button } from "react-bootstrap";
 
-export default function CategorySelector({
-  selectedCategories,
-  toggleCategory,
-  onBack
-}) {
+export default function CategorySelector({ selectedCategories, toggleCategory, onBack }) {
   const options = [
     "Student",
     "Manager",
@@ -21,7 +18,7 @@ export default function CategorySelector({
     >
       <h3 className="mb-3">Choose Categories</h3>
       <div className="mb-4">
-        {options.map(opt => {
+        {options.map((opt) => {
           const active = selectedCategories.includes(opt);
           return (
             <Badge
@@ -42,11 +39,8 @@ export default function CategorySelector({
           );
         })}
       </div>
-      <Button
-        variant="outline-light"
-        className="w-100 mt-3"
-        onClick={onBack}
-      >
+
+      <Button variant="outline-light" className="w-100 mt-3" onClick={onBack}>
         Back
       </Button>
     </div>
