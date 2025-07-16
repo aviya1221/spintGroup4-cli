@@ -3,13 +3,14 @@ import { Routes, Route } from "react-router-dom";
 import Members from "./Members";
 import Import from "./Import";
 import Sidebar from "../Sidebar";
+import HomePage from "./HomePage";
 
 export default function AdminLayout() {
   return (
     <>
       <div>
         <Routes>
-          <Route path="" element={<Members />} />
+          <Route path="" element={<HomePage />} />
           <Route path="members" element={<Members />} />
           <Route path="import" element={<Import />} />
         </Routes>
