@@ -22,6 +22,7 @@ export default function Welcome() {
           width: '100%',
           maxWidth: '500px',
           color: '#fff',
+          borderRadius: '0.25rem',
         }}
       >
         <img
@@ -39,17 +40,21 @@ export default function Welcome() {
 
         <form>
           <div className="mb-3">
-            <p style={{ fontSize: '1.1rem' }}>
-              Hey, enter here your LinkedIn link:
-            </p>
           </div>
           <div className="mb-3">
-            <label>LinkedIn</label>
             <input
               type="url"
               className="form-control"
-              placeholder="https://www.linkedin.com"
-              style={{ backgroundColor: '#495057', border: 'none', color: '#fff' }}
+              placeholder="Connect with linkedin profile"
+              style={{
+                 backgroundColor: '#adb5bd',
+                   border: '1px solid #6c757d',
+                   color: '#495057',
+                   fontSize: '1.2rem',
+                   padding: '0.75rem',
+                   borderRadius: '0.25rem',
+                   paddingLeft: '5rem',
+                   }}
             />
           </div>
           <Link to={'/user/profile'}>
@@ -60,7 +65,7 @@ export default function Welcome() {
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
             >
-              Enter
+              Enter your details
             </button>
           </Link>
         </form>
