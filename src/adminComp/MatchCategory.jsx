@@ -90,13 +90,13 @@ export default function MatchCategory() {
       });
       // שליחת הקבוצה שנוספה לשרת
       try {
-        if (linkObj?.id) {
+        if (linkObj?.member_id) {
           await fetch("/api/group/addTogroup", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              userId: linkObj.id,
-              groupName: catName // הוסף רק אם צריך
+              userId: linkObj.member_id,
+              groupId: catName // הוסף רק אם צריך
             })
           });
         }
