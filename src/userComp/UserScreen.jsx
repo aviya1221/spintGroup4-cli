@@ -4,6 +4,7 @@ import PersonalInfo     from "./PersonalInfo";
 import JobInfo          from "./JobInfo";
 import CategorySelector from "./CategorySelector";
 import SaveButton       from "./SaveButton.jsx";
+import AgreeButton from "./userButtons/AgreeButton.jsx";
 
 
 export default function UserScreen() {
@@ -118,7 +119,9 @@ export default function UserScreen() {
                 </NavBtn>
               </div>
 
-              <div className="d-flex justify-content-around align-items-center mt-3">
+              <div className="d-flex flex-column justify-content-around align-items-center mt-3">
+                <p>enbale manger notifications?</p>
+                <AgreeButton/>
                 <SaveButton getValues={getValues} />
               </div>
             </div>
