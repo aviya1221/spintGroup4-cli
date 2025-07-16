@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { useEffect } from "react";
 import PersonalInfo from "./PersonalInfo";
 import JobInfo from "./JobInfo";
 import CategorySelector from "./CategorySelector";
@@ -27,6 +28,27 @@ export default function UserScreen() {
       prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]
     );
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem('ConnectedMember');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.full_name) setFullName(data.full_name);
+        if (data.role) setCurrentJob(data.role);
+        if (data.current_company) setCompany(data.current_company);
+        if (data.city) setCity(data.city);
+        if (data.phone) setPhone(data.phone);
+        if (data.linkedin_url) setLinkedin(data.linkedin_url);
+        if (data.email) setEmail(data.email);
+        if (data.years_of_experience) setYears(data.years_of_experience.toString());
+        if (data.skills) setSkills(data.skills);
+        if (data.wants_updates !== undefined) setNotification(data.wants_updates);
+      } catch (err) {
+        console.error("Error parsing ConnectedMember:", err);
+      }
+    }
+  }, []);
 
   const getValues = () => ({
     "Full Name": fullName,

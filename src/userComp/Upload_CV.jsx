@@ -113,7 +113,7 @@ ${content}
       });
 
       if (!res.ok) throw new Error('Server rejected the request');
-
+      localStorage.setItem('ConnectedMember', JSON.stringify(parsed));
       setStatus('Success! Member saved');
       navigate('/user/profile');
     } catch (err) {
