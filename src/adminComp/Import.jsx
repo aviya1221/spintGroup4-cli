@@ -19,17 +19,14 @@ export default function Import() {
         });
 
         console.log('🛑 status:', response.status);
-        const text = await response.text();
-        console.log('🛑 raw body:', text);
 
         if (!response.ok) {
-          alert('❌ Upload failed: ' + (text || response.statusText));
+          alert('❌ Upload failed: ' + ( response.statusText));
           return;
         }
 
-        const data = JSON.parse(text);
         alert('✅ File uploaded!');
-        console.log('✅ response:', data);
+        console.log('✅ response:');
       } catch (err) {
         console.error('🚨 Error uploading file:', err);
         alert('❌ Error uploading file – בדוק קונסול');
