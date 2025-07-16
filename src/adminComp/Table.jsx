@@ -4,23 +4,16 @@ import "./Table.css";
 
 export default function Table() {
   const [groups, setGroups] = useState([]);
-  const [selectedGroups, setSelectedGroups] = useState([]); // array of group IDs
-
-  const [allRows, setAllRows] = useState([]); // current page data from server (paginated)
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [allRows, setAllRows] = useState([]);
   const [page, setPage] = useState(0);
   const pageSize = 7;
   const [showDropdown, setShowDropdown] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
-
-  const [rowCount, setRowCount] = useState(0); // total count for pagination
-
-  // Debounce timer reference
+  const [rowCount, setRowCount] = useState(0);
   const searchTimeout = useRef(null);
-
-  // Fetch groups for dropdown
   const fetchGroups = async () => {
     try {
       const res = await fetch("/api/groups/getAllGroups");
@@ -35,8 +28,6 @@ export default function Table() {
   useEffect(() => {
     fetchGroups();
   }, []);
-
-  // Fetch all members paginated (no group, no search)
   const fetchPaginatedMembers = async (page) => {
     setLoading(true);
     try {
@@ -58,8 +49,6 @@ export default function Table() {
       setLoading(false);
     }
   };
-
-  // Fetch members by group(s) (POST, no pagination assumed on server)
   const fetchMembersByGroups = async (groupIds) => {
     setLoading(true);
     try {
@@ -72,7 +61,7 @@ export default function Table() {
       const members = await res.json();
 
       setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
-      setRowCount(members.length); // client paginated
+      setRowCount(members.length);
     } catch (err) {
       console.error(err);
       setAllRows([]);
@@ -82,25 +71,20 @@ export default function Table() {
     }
   };
 
-  // Fetch members by search word with server pagination
   const fetchMembersBySearch = async (searchWord, page) => {
     if (searchWord.length < 3) {
-      // If search cleared or too short, reset to normal
       setPage(0);
       fetchPaginatedMembers(0);
       return;
     }
     setLoading(true);
     try {
-      // Assuming your backend supports pagination for search? 
-      // If not, you may need to handle pagination client side.
-      // Let's assume backend returns full search results, so we do client pagination here:
       const res = await fetch(`/api/members/getMemberInclude/${encodeURIComponent(searchWord)}`);
       if (!res.ok) throw new Error("Failed to fetch search results");
       const members = await res.json();
 
       setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
-      setRowCount(members.length); // client paginate total count
+      setRowCount(members.length);
     } catch (err) {
       console.error(err);
       setAllRows([]);
@@ -109,23 +93,16 @@ export default function Table() {
       setLoading(false);
     }
   };
-
-  // Effect to fetch data depending on filters/search
   useEffect(() => {
     if (selectedGroups.length > 0) {
-      // When groups selected, ignore search and fetch by groups
       fetchMembersByGroups(selectedGroups);
       setPage(0);
     } else if (input.trim().length >= 3) {
-      // Search active, fetch search results
       fetchMembersBySearch(input.trim(), page);
     } else {
-      // No group, no search - fetch normal paginated members
       fetchPaginatedMembers(page);
     }
   }, [page, selectedGroups]);
-
-  // Handle search input with debounce to avoid spamming server
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
@@ -138,18 +115,15 @@ export default function Table() {
           fetchPaginatedMembers(0);
         }
       }
-    }, 400); // 400ms debounce
+    }, 400);
 
     return () => clearTimeout(searchTimeout.current);
   }, [input]);
 
-  // For pagination display of search and group filtered results (client side paginate)
   const displayedRows =
     selectedGroups.length > 0 || input.trim().length >= 3
       ? allRows.slice(page * pageSize, (page + 1) * pageSize)
-      : allRows; // server paginated for normal all members
-
-  // Handlers
+      : allRows; 
   const handlePrevPage = () => {
     if (page > 0) setPage(page - 1);
   };
@@ -159,31 +133,13 @@ export default function Table() {
     if (page < maxPage) setPage(page + 1);
   };
 
-  const handleGroupSelect = (e) => {
-    const val = e.target.value;
-    if (val === "") {
-      setSelectedGroups([]);
-      setPage(0);
-    } else {
-      setSelectedGroups([Number(val)]);
-      setPage(0);
-    }
-    setInput("");
-  };
 
-  return (
-    <div style={{ padding: "1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-      {/* Group dropdown */}
-      <div style={{ position: "relative", width: "80%", maxWidth: "400px" }}>
+    return (
+    <div className="container">
+      <div className="dropdown-wrapper">
         <div
           onClick={() => setShowDropdown((prev) => !prev)}
-          style={{
-            border: "1px solid #ccc",
-            padding: "8px",
-            borderRadius: "4px",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-          }}
+          className="dropdown-header"
         >
           {selectedGroups.length === 0
             ? "Select Groups..."
@@ -194,30 +150,11 @@ export default function Table() {
         </div>
 
         {showDropdown && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              maxHeight: "200px",
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              borderTop: "none",
-              backgroundColor: "white",
-              zIndex: 1000,
-            }}
-          >
+          <div className="dropdown-content">
             {groups.map((group) => (
               <label
                 key={group.group_id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "6px 8px",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                }}
+                className="dropdown-item"
               >
                 <input
                   type="checkbox"
@@ -229,46 +166,43 @@ export default function Table() {
                     );
                     setPage(0);
                   }}
-                  style={{ marginRight: "8px" }}
                 />
                 {group.group_name}
               </label>
             ))}
-            <div style={{ padding: "8px", textAlign: "center" }}>
+            <div className="clear-all-button-container">
               <button onClick={() => setSelectedGroups([])}>Clear All</button>
             </div>
           </div>
         )}
       </div>
-
-      {/* Search input */}
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Search members (min 3 chars)..."
-        style={{ padding: "8px", width: "80%", maxWidth: "400px" }}
+        className="search-input"
       />
 
       {loading ? (
-        <div>Loading...</div>
+        <div className="loading-message">Loading...</div>
       ) : (
         <>
-          <table style={{ borderCollapse: "collapse", minWidth: "800px" }}>
+          <table className="members-table">
             <thead>
               <tr>
-                <th style={{ border: "1px solid black", padding: "8px" }}>Name</th>
-                <th style={{ border: "1px solid black", padding: "8px" }}>Phone</th>
-                <th style={{ border: "1px solid black", padding: "8px" }}>Email</th>
-                <th style={{ border: "1px solid black", padding: "8px" }}>City</th>
-                <th style={{ border: "1px solid black", padding: "8px" }}>Role</th>
-                <th style={{ border: "1px solid black", padding: "8px" }}>Experience</th>
+                <th className="members-table-th">Name</th>
+                <th className="members-table-th">Phone</th>
+                <th className="members-table-th">Email</th>
+                <th className="members-table-th">City</th>
+                <th className="members-table-th">Role</th>
+                <th className="members-table-th">Experience</th>
               </tr>
             </thead>
             <tbody>
               {displayedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: "center", padding: "8px" }}>
+                  <td colSpan={6} className="table-no-members">
                     No members found.
                   </td>
                 </tr>
@@ -277,26 +211,21 @@ export default function Table() {
                   <tr
                     key={row.id}
                     onClick={() => setSelectedRowId(row.id)}
-                    style={{
-                      cursor: "pointer",
-                      backgroundColor: row.id === selectedRowId ? "#e0e0e0" : "transparent",
-                    }}
+                    className={`table-row ${row.id === selectedRowId ? 'table-row-selected' : ''}`}
                   >
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.english_name}</td>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.phone}</td>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.email}</td>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.city}</td>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.role}</td>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.years_of_experience}</td>
+                    <td>{row.english_name}</td>
+                    <td>{row.phone}</td>
+                    <td>{row.email}</td>
+                    <td>{row.city}</td>
+                    <td>{row.role}</td>
+                    <td>{row.years_of_experience}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
-
-          {/* Pagination controls */}
-          <div style={{ marginTop: "1rem" }}>
-            <button onClick={handlePrevPage} disabled={page === 0} style={{ marginRight: "1rem" }}>
+          <div className="pagination-container">
+            <button onClick={handlePrevPage} disabled={page === 0} className="pagination-button">
               &lt; Previous
             </button>
             <span>
@@ -305,7 +234,7 @@ export default function Table() {
             <button
               onClick={handleNextPage}
               disabled={page >= Math.ceil(rowCount / pageSize) - 1}
-              style={{ marginLeft: "1rem" }}
+              className="pagination-button"
             >
               Next &gt;
             </button>
