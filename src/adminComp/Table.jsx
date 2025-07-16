@@ -1,101 +1,319 @@
-import React, { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import ProfileMember from './ProfileMember';
+import React, { useState, useEffect, useRef } from "react";
+import ProfileMember from "./ProfileMember";
+import "./Table.css";
 
 export default function Table() {
-  const [rows, setRows] = useState([]);
-  const [filterRows, setFilterRows] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]); // array of group IDs
+
+  const [allRows, setAllRows] = useState([]); // current page data from server (paginated)
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
-  const [rowCount, setRowCount] = useState(0);
+  const pageSize = 7;
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
 
-  const columns = [
-    { field: "english_name", headerName: "Name", minWidth: 120, flex: 1 },
-    { field: "phone", headerName: "Phone", minWidth: 150, flex: 1 },
-    { field: "email", headerName: "Email", minWidth: 200, flex: 1 },
-    { field: "city", headerName: "City", minWidth: 150, flex: 1 },
-    { field: "role", headerName: "Role", minWidth: 150, flex: 1 },
-    { field: "years_of_experience", headerName: "Experience", minWidth: 100, flex: 1 },
-  ];
+  const [rowCount, setRowCount] = useState(0); // total count for pagination
 
-  const fetchMembers = async (currentPage) => {
+  // Debounce timer reference
+  const searchTimeout = useRef(null);
+
+  // Fetch groups for dropdown
+  const fetchGroups = async () => {
+    try {
+      const res = await fetch("/api/groups/getAllGroups");
+      if (!res.ok) throw new Error("Failed to fetch groups");
+      const data = await res.json();
+      setGroups(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  // Fetch all members paginated (no group, no search)
+  const fetchPaginatedMembers = async (page) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/members/getPageMembers/${currentPage}`);
-      if (!res.ok) throw new Error("Network response was not ok");
+      const res = await fetch(`/api/members/getPageMembers/${page}`);
+      if (!res.ok) throw new Error("Failed to fetch paginated members");
+      const members = await res.json();
 
-      const data = await res.json();
-      console.log("data from server:", data);
+      const countRes = await fetch("/api/members/getCountMembers");
+      if (!countRes.ok) throw new Error("Failed to fetch count");
+      const count = await countRes.json();
 
-      const formatted = data.map((member) => ({
-        ...member,
-        id: member.member_id,
-      }));
-
-      setRows(formatted);
-      setFilterRows(formatted);
-      setRowCount(formatted.length);
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(count);
     } catch (err) {
-      console.error("Failed to fetch members:", err);
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchMembers(page);
-  }, [page, pageSize]);
+  // Fetch members by group(s) (POST, no pagination assumed on server)
+  const fetchMembersByGroups = async (groupIds) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/groups/getAllMembersThatBelongTo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(groupIds),
+      });
+      if (!res.ok) throw new Error("Failed to fetch members by groups");
+      const members = await res.json();
 
-  const handleSearch = (e) => {
-    const val = e.target.value;
-    setInput(val);
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(members.length); // client paginated
+    } catch (err) {
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (val === "") {
-      setFilterRows(rows);
+  // Fetch members by search word with server pagination
+  const fetchMembersBySearch = async (searchWord, page) => {
+    if (searchWord.length < 3) {
+      // If search cleared or too short, reset to normal
+      setPage(0);
+      fetchPaginatedMembers(0);
       return;
     }
+    setLoading(true);
+    try {
+      // Assuming your backend supports pagination for search? 
+      // If not, you may need to handle pagination client side.
+      // Let's assume backend returns full search results, so we do client pagination here:
+      const res = await fetch(`/api/members/getMemberInclude/${encodeURIComponent(searchWord)}`);
+      if (!res.ok) throw new Error("Failed to fetch search results");
+      const members = await res.json();
 
-    const filtered = rows.filter((row) =>
-      Object.values(row).some((field) =>
-        String(field).toLowerCase().includes(val.toLowerCase())
-      )
-    );
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(members.length); // client paginate total count
+    } catch (err) {
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setFilterRows(filtered);
+  // Effect to fetch data depending on filters/search
+  useEffect(() => {
+    if (selectedGroups.length > 0) {
+      // When groups selected, ignore search and fetch by groups
+      fetchMembersByGroups(selectedGroups);
+      setPage(0);
+    } else if (input.trim().length >= 3) {
+      // Search active, fetch search results
+      fetchMembersBySearch(input.trim(), page);
+    } else {
+      // No group, no search - fetch normal paginated members
+      fetchPaginatedMembers(page);
+    }
+  }, [page, selectedGroups]);
+
+  // Handle search input with debounce to avoid spamming server
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+
+    searchTimeout.current = setTimeout(() => {
+      setPage(0);
+      if (selectedGroups.length === 0) {
+        if (input.trim().length >= 3) {
+          fetchMembersBySearch(input.trim(), 0);
+        } else {
+          fetchPaginatedMembers(0);
+        }
+      }
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(searchTimeout.current);
+  }, [input]);
+
+  // For pagination display of search and group filtered results (client side paginate)
+  const displayedRows =
+    selectedGroups.length > 0 || input.trim().length >= 3
+      ? allRows.slice(page * pageSize, (page + 1) * pageSize)
+      : allRows; // server paginated for normal all members
+
+  // Handlers
+  const handlePrevPage = () => {
+    if (page > 0) setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    const maxPage = Math.floor((rowCount - 1) / pageSize);
+    if (page < maxPage) setPage(page + 1);
+  };
+
+  const handleGroupSelect = (e) => {
+    const val = e.target.value;
+    if (val === "") {
+      setSelectedGroups([]);
+      setPage(0);
+    } else {
+      setSelectedGroups([Number(val)]);
+      setPage(0);
+    }
+    setInput("");
   };
 
   return (
-    <div className="d-flex flex-column align-items-center gap-3" style={{ padding: "1rem" }}>
+    <div style={{ padding: "1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+      {/* Group dropdown */}
+      <div style={{ position: "relative", width: "80%", maxWidth: "400px" }}>
+        <div
+          onClick={() => setShowDropdown((prev) => !prev)}
+          style={{
+            border: "1px solid #ccc",
+            padding: "8px",
+            borderRadius: "4px",
+            backgroundColor: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          {selectedGroups.length === 0
+            ? "Select Groups..."
+            : groups
+                .filter((g) => selectedGroups.includes(g.group_id))
+                .map((g) => g.group_name)
+                .join(", ")}
+        </div>
+
+        {showDropdown && (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              maxHeight: "200px",
+              overflowY: "auto",
+              border: "1px solid #ccc",
+              borderTop: "none",
+              backgroundColor: "white",
+              zIndex: 1000,
+            }}
+          >
+            {groups.map((group) => (
+              <label
+                key={group.group_id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "6px 8px",
+                  cursor: "pointer",
+                  borderBottom: "1px solid #eee",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedGroups.includes(group.group_id)}
+                  onChange={(e) => {
+                    const groupId = group.group_id;
+                    setSelectedGroups((prev) =>
+                      e.target.checked ? [...prev, groupId] : prev.filter((id) => id !== groupId)
+                    );
+                    setPage(0);
+                  }}
+                  style={{ marginRight: "8px" }}
+                />
+                {group.group_name}
+              </label>
+            ))}
+            <div style={{ padding: "8px", textAlign: "center" }}>
+              <button onClick={() => setSelectedGroups([])}>Clear All</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Search input */}
       <input
-        onChange={handleSearch}
+        type="text"
         value={input}
-        placeholder="Search..."
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Search members (min 3 chars)..."
         style={{ padding: "8px", width: "80%", maxWidth: "400px" }}
       />
-      <div style={{ width: "100%", overflowX: "auto" }}>
-        <div style={{ minWidth: "800px" }}>
-          <DataGrid
-            rows={filterRows}
-            columns={columns}
-            pageSize={pageSize}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            pagination
-            paginationMode="server"
-            rowCount={rowCount}
-            onPageChange={(newPage) => setPage(newPage)}
-            loading={loading}
-            autoHeight
-            onRowClick={(params) => {
-              setSelectedRowId(params.id);
-            }}
-          />
-        </div>
-      </div>
-      {selectedRowId && <ProfileMember />}
+
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <table style={{ borderCollapse: "collapse", minWidth: "800px" }}>
+            <thead>
+              <tr>
+                <th style={{ border: "1px solid black", padding: "8px" }}>Name</th>
+                <th style={{ border: "1px solid black", padding: "8px" }}>Phone</th>
+                <th style={{ border: "1px solid black", padding: "8px" }}>Email</th>
+                <th style={{ border: "1px solid black", padding: "8px" }}>City</th>
+                <th style={{ border: "1px solid black", padding: "8px" }}>Role</th>
+                <th style={{ border: "1px solid black", padding: "8px" }}>Experience</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedRows.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "8px" }}>
+                    No members found.
+                  </td>
+                </tr>
+              ) : (
+                displayedRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() => setSelectedRowId(row.id)}
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor: row.id === selectedRowId ? "#e0e0e0" : "transparent",
+                    }}
+                  >
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.english_name}</td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.phone}</td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.email}</td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.city}</td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.role}</td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>{row.years_of_experience}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {/* Pagination controls */}
+          <div style={{ marginTop: "1rem" }}>
+            <button onClick={handlePrevPage} disabled={page === 0} style={{ marginRight: "1rem" }}>
+              &lt; Previous
+            </button>
+            <span>
+              Page {page + 1} of {Math.max(1, Math.ceil(rowCount / pageSize))}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={page >= Math.ceil(rowCount / pageSize) - 1}
+              style={{ marginLeft: "1rem" }}
+            >
+              Next &gt;
+            </button>
+          </div>
+        </>
+      )}
+
+      {selectedRowId && selectedRowId > 0 && <ProfileMember memberId={selectedRowId} onClose={() => setSelectedRowId(null)} />}
     </div>
   );
 }
-
