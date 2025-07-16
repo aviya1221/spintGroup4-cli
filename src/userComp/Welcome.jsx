@@ -29,7 +29,8 @@ export default function Welcome() {
       });
 
       if (!res.ok) throw new Error('Failed to send URL');
-
+       const data = await res.json();
+       localStorage.setItem('ConnectedMember', JSON.stringify(data));
       navigate('/user/profile');
     } catch (err) {
       console.error("Error:", err);
