@@ -1,0 +1,62 @@
+.home-container {
+  min-height: 100vh;
+  padding: 50px 20px;
+  background: linear-gradient(to right, #f0f4ff, #f9f9f9);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.home-title {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 40px;
+  color: #333;
+}
+.modal-dialog {
+  margin: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.info-card {
+  width: 260px;
+  min-height: 160px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+  transform: scale(1.03);
+}
+
+.info-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.info-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.info-value {
+  font-size: 26px;
+  font-weight: bold;
+  color: #222;
+  text-align: center;
+}
