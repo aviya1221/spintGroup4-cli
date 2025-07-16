@@ -87,7 +87,6 @@ export default function Table() {
             rowCount={rowCount}
             onPageChange={(newPage) => setPage(newPage)}
             loading={loading}
-            autoHeight
             onRowClick={(params) => {
               setSelectedRowId(params.id);
             }}
