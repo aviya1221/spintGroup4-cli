@@ -1,100 +1,247 @@
-import React, { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import ProfileMember from './ProfileMember';
+import React, { useState, useEffect, useRef } from "react";
+import ProfileMember from "./ProfileMember";
+import "./Table.css";
 
 export default function Table() {
-  const [rows, setRows] = useState([]);
-  const [filterRows, setFilterRows] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [allRows, setAllRows] = useState([]);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
-  const [rowCount, setRowCount] = useState(0);
+  const pageSize = 7;
+  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [rowCount, setRowCount] = useState(0);
+  const searchTimeout = useRef(null);
+  const fetchGroups = async () => {
+    try {
+      const res = await fetch("/api/groups/getAllGroups");
+      if (!res.ok) throw new Error("Failed to fetch groups");
+      const data = await res.json();
+      setGroups(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const columns = [
-    { field: "english_name", headerName: "Name", minWidth: 120, flex: 1 },
-    { field: "phone", headerName: "Phone", minWidth: 150, flex: 1 },
-    { field: "email", headerName: "Email", minWidth: 200, flex: 1 },
-    { field: "city", headerName: "City", minWidth: 150, flex: 1 },
-    { field: "role", headerName: "Role", minWidth: 150, flex: 1 },
-    { field: "years_of_experience", headerName: "Experience", minWidth: 100, flex: 1 },
-  ];
-
-  const fetchMembers = async (currentPage) => {
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+  const fetchPaginatedMembers = async (page) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/members/getPageMembers/${currentPage}`);
-      if (!res.ok) throw new Error("Network response was not ok");
+      const res = await fetch(`/api/members/getPageMembers/${page}`);
+      if (!res.ok) throw new Error("Failed to fetch paginated members");
+      const members = await res.json();
 
-      const data = await res.json();
-      console.log("data from server:", data);
+      const countRes = await fetch("/api/members/getCountMembers");
+      if (!countRes.ok) throw new Error("Failed to fetch count");
+      const count = await countRes.json();
 
-      const formatted = data.map((member) => ({
-        ...member,
-        id: member.member_id,
-      }));
-
-      setRows(formatted);
-      setFilterRows(formatted);
-      setRowCount(formatted.length);
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(count);
     } catch (err) {
-      console.error("Failed to fetch members:", err);
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchMembersByGroups = async (groupIds) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/groups/getAllMembersThatBelongTo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(groupIds),
+      });
+      if (!res.ok) throw new Error("Failed to fetch members by groups");
+      const members = await res.json();
+
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(members.length);
+    } catch (err) {
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchMembers(page);
-  }, [page, pageSize]);
-
-  const handleSearch = (e) => {
-    const val = e.target.value;
-    setInput(val);
-
-    if (val === "") {
-      setFilterRows(rows);
+  const fetchMembersBySearch = async (searchWord, page) => {
+    if (searchWord.length < 3) {
+      setPage(0);
+      fetchPaginatedMembers(0);
       return;
     }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/members/getMemberInclude/${encodeURIComponent(searchWord)}`);
+      if (!res.ok) throw new Error("Failed to fetch search results");
+      const members = await res.json();
 
-    const filtered = rows.filter((row) =>
-      Object.values(row).some((field) =>
-        String(field).toLowerCase().includes(val.toLowerCase())
-      )
-    );
+      setAllRows(members.map((m) => ({ ...m, id: m.member_id })));
+      setRowCount(members.length);
+    } catch (err) {
+      console.error(err);
+      setAllRows([]);
+      setRowCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (selectedGroups.length > 0) {
+      fetchMembersByGroups(selectedGroups);
+      setPage(0);
+    } else if (input.trim().length >= 3) {
+      fetchMembersBySearch(input.trim(), page);
+    } else {
+      fetchPaginatedMembers(page);
+    }
+  }, [page, selectedGroups]);
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
-    setFilterRows(filtered);
+    searchTimeout.current = setTimeout(() => {
+      setPage(0);
+      if (selectedGroups.length === 0) {
+        if (input.trim().length >= 3) {
+          fetchMembersBySearch(input.trim(), 0);
+        } else {
+          fetchPaginatedMembers(0);
+        }
+      }
+    }, 400);
+
+    return () => clearTimeout(searchTimeout.current);
+  }, [input]);
+
+  const displayedRows =
+    selectedGroups.length > 0 || input.trim().length >= 3
+      ? allRows.slice(page * pageSize, (page + 1) * pageSize)
+      : allRows; 
+  const handlePrevPage = () => {
+    if (page > 0) setPage(page - 1);
   };
 
-  return (
-    <div className="d-flex flex-column align-items-center gap-3" style={{ padding: "1rem" }}>
-      <input
-        onChange={handleSearch}
-        value={input}
-        placeholder="Search..."
-        style={{ padding: "8px", width: "80%", maxWidth: "400px" }}
-      />
-      <div style={{ width: "100%", overflowX: "auto" }}>
-        <div style={{ minWidth: "800px" }}>
-          <DataGrid
-            rows={filterRows}
-            columns={columns}
-            pageSize={pageSize}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            pagination
-            paginationMode="server"
-            rowCount={rowCount}
-            onPageChange={(newPage) => setPage(newPage)}
-            loading={loading}
-            onRowClick={(params) => {
-              setSelectedRowId(params.id);
-            }}
-          />
+  const handleNextPage = () => {
+    const maxPage = Math.floor((rowCount - 1) / pageSize);
+    if (page < maxPage) setPage(page + 1);
+  };
+
+
+    return (
+    <div className="container">
+      <div className="dropdown-wrapper">
+        <div
+          onClick={() => setShowDropdown((prev) => !prev)}
+          className="dropdown-header"
+        >
+          {selectedGroups.length === 0
+            ? "Select Groups..."
+            : groups
+                .filter((g) => selectedGroups.includes(g.group_id))
+                .map((g) => g.group_name)
+                .join(", ")}
         </div>
+
+        {showDropdown && (
+          <div className="dropdown-content">
+            {groups.map((group) => (
+              <label
+                key={group.group_id}
+                className="dropdown-item"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedGroups.includes(group.group_id)}
+                  onChange={(e) => {
+                    const groupId = group.group_id;
+                    setSelectedGroups((prev) =>
+                      e.target.checked ? [...prev, groupId] : prev.filter((id) => id !== groupId)
+                    );
+                    setPage(0);
+                  }}
+                />
+                {group.group_name}
+              </label>
+            ))}
+            <div className="clear-all-button-container">
+              <button onClick={() => setSelectedGroups([])}>Clear All</button>
+            </div>
+          </div>
+        )}
       </div>
-      {selectedRowId && <ProfileMember />}
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Search members (min 3 chars)..."
+        className="search-input"
+      />
+      {loading ? (
+        <div className="loading-message">Loading...</div>
+      ) : (
+        <>
+          <table className="members-table">
+            <thead>
+              <tr>
+                <th className="members-table-th">Name</th>
+                <th className="members-table-th">Phone</th>
+                <th className="members-table-th">Email</th>
+                <th className="members-table-th">City</th>
+                <th className="members-table-th">Role</th>
+                <th className="members-table-th">Experience</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedRows.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="table-no-members">
+                    No members found.
+                  </td>
+                </tr>
+              ) : (
+                displayedRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() => setSelectedRowId(row.id)}
+                    className={`table-row ${row.id === selectedRowId ? 'table-row-selected' : ''}`}
+                  >
+                    <td>{row.english_name}</td>
+                    <td>{row.phone}</td>
+                    <td>{row.email}</td>
+                    <td>{row.city}</td>
+                    <td>{row.role}</td>
+                    <td>{row.years_of_experience}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          <div className="pagination-container">
+            <button onClick={handlePrevPage} disabled={page === 0} className="pagination-button">
+              &lt; Previous
+            </button>
+            <span>
+              Page {page + 1} of {Math.max(1, Math.ceil(rowCount / pageSize))}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={page >= Math.ceil(rowCount / pageSize) - 1}
+              className="pagination-button"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </>
+      )}
+
+      {selectedRowId && selectedRowId > 0 && <ProfileMember memberId={selectedRowId} onClose={() => setSelectedRowId(null)} />}
     </div>
   );
 }
-

@@ -1,0 +1,97 @@
+
+
+.container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dropdown-wrapper {
+  position: relative;
+  width: 80%;
+  max-width: 400px;
+}
+
+.dropdown-header {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-top: none;
+  background-color: white;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-item input {
+  margin-right: 8px;
+}
+
+.clear-all-button-container {
+  padding: 8px;
+  text-align: center;
+}
+
+.search-input {
+  padding: 8px;
+  width: 80%;
+  max-width: 400px;
+}
+
+
+.members-table {
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.members-table th,
+.members-table td {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+.table-no-members {
+  text-align: center;
+  padding: 8px;
+}
+
+.table-row {
+  cursor: pointer;
+}
+
+.table-row-selected {
+  background-color: #e0e0e0;
+}
+
+.pagination-container {
+  margin-top: 1rem;
+}
+
+.pagination-button {
+  margin-right: 1rem;
+}
+
+.pagination-button + .pagination-button {
+  margin-left: 1rem; 
+  margin-right: 0;
+}
