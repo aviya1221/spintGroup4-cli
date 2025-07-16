@@ -17,8 +17,7 @@ export default function AgreeButton() {
     transition: 'background-color 0.3s',
     boxSizing: 'border-box',
     fontSize: '12px',
-      marginBottom: '1rem',
-    
+    marginBottom:"1rem"
   };
 
   const textStyle = {

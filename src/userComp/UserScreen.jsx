@@ -123,8 +123,7 @@ export default function UserScreen() {
               </div>
 
               <div className="d-flex flex-column justify-content-around align-items-center mt-3">
-                
-                <p>Enable manager notifications?</p>
+                <p>enbale manger notifications?</p>
                 <AgreeButton/>
                 <SaveButton getValues={getValues} />
               </div>
