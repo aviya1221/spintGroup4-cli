@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Welcome() {
   const [hover, setHover] = useState(false);
+  const [linkedinURL, setLinkedinURL] = useState("");
+  const navigate = useNavigate();
 
   const buttonStyle = {
     backgroundColor: hover ? '#ced4da' : '#adb5bd',
@@ -13,11 +15,34 @@ export default function Welcome() {
     padding: '0.75rem',
   };
 
+  const handleGoToProfile = () => {
+    navigate('/user/profile');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(linkedinURL);
+    try {
+      const res = await fetch('/api/members/postDetailsFromLinkedIn', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ linkedin_url: linkedinURL }),
+      });
+      
+      if (!res.ok) throw new Error('Failed to send URL');
+
+      navigate('/user/profile');
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
+
   return (
-    <div
-      className="d-flex justify-content-center vh-50">
+    <div className="d-flex justify-content-center vh-50">
       <div
-        className="p-5 rounded"
+        className="p-4 rounded"
         style={{
           backgroundColor: '#343a40',
           width: '100%',
@@ -25,29 +50,45 @@ export default function Welcome() {
           color: '#fff',
         }}
       >
-        <h2 className="text-center mb-4" style={{ fontSize: '2rem' }}>Welcome</h2>
-        <form>
+        <img
+          src="/Img/logo.png"
+          alt="Logo"
+          className="d-block mx-auto"
+          style={{ maxWidth: '140px', height: 'auto' }}
+        />
+        <h2 className="text-center mt-2 mb-4" style={{ fontSize: '2rem' }}>
+          Welcome to 4Community
+        </h2>
+
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <p style={{ fontSize: '1.1rem' }}>Hey, enter here your LinkedIn link:</p>
-          </div>
-          <div className="mb-3">
-            <label>LinkedIn</label>
             <input
               type="url"
               className="form-control"
-              placeholder="https://www.linkedin.com"
-              style={{ backgroundColor: '#495057', border: 'none', color: '#fff' }}
+              placeholder="Connect with linkedin profile"
+              style={{
+                backgroundColor: '#adb5bd',
+                border: '1px solid #6c757d',
+                color: '#495057',
+                fontSize: '1.2rem',
+                padding: '0.75rem',
+                borderRadius: '0.25rem',
+                paddingLeft: '5rem',
+              }}
+              value={linkedinURL}
+              onChange={(e) => setLinkedinURL(e.target.value)}
             />
           </div>
-          <Link to={'/user/profile'}><button
-            type="submit"
-            className="btn"
-            style={buttonStyle}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-          >
-            Enter
-          </button></Link>
+            <button
+              type="submit"
+              className="btn"
+              style={buttonStyle}
+              onClick={handleGoToProfile}
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
+            >
+              Enter your details
+            </button>
         </form>
       </div>
     </div>

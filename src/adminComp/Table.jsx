@@ -183,7 +183,6 @@ export default function Table() {
         placeholder="Search members (min 3 chars)..."
         className="search-input"
       />
-
       {loading ? (
         <div className="loading-message">Loading...</div>
       ) : (
