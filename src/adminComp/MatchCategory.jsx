@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Spinner } from 'react-bootstrap';
 import CATEGORY_MATCHER_PROMPT from '../assets/CATEGORY_MATCHER_PROMPT.js';
 import ManagerAddCategory from './ManagerAddCategory';
 
@@ -9,15 +10,15 @@ export default function MatchCategory() {
   const [matchedCategories, setMatchedCategories] = useState([]);
   const [userCategories, setUserCategories] = useState([]);
   const [categoryColors, setCategoryColors] = useState({});
-  const [allGroups,setAllGroups]=useState([]);
-  
+  const [allGroups, setAllGroups] = useState([]);
+  const [loading, setLoading] = useState(false); // ← הוספת state לטעינה
 
   const badgeColors = [
-    '#00b894', // ירוק טורקיז
-    '#0984e3', // כחול
-    '#e17055', // אדום כתום
-    '#fdcb6e', // צהוב
-    '#6c5ce7'  // סגול
+    '#00b894',
+    '#0984e3',
+    '#e17055',
+    '#fdcb6e',
+    '#6c5ce7'
   ];
 
   const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
@@ -27,6 +28,7 @@ export default function MatchCategory() {
   };
 
   const handleClick = async () => {
+    setLoading(true); // ← מתחילים טעינה
     try {
       const response = await fetch("/api/members/postDetailsFromLinkedIn", {
         method: 'POST',
@@ -43,7 +45,7 @@ export default function MatchCategory() {
       const categories = groups.map(g => g.group_name);
       setAllGroups(groups);
 
-    console.log(groups);
+      console.log(groups);
 
       const chatRes = await fetch(
         "https://api.openai.com/v1/chat/completions",
@@ -77,57 +79,58 @@ export default function MatchCategory() {
       setMatchedCategories(result.matchedCategories || []);
     } catch (err) {
       console.error('❌ Error in handleClick:', err);
+    } finally {
+      setLoading(false); // ← מסיימים טעינה
     }
   };
 
-  // הוספה לפרופיל המשתמש + הקצאת צבע + שליחה לשרת
   const handleManagerAdd = async (catName) => {
-  // אל תוסיף ל־userCategories לפני שהשרת מחזיר 200
-  if (userCategories.includes(catName)) return;
+    if (userCategories.includes(catName)) return;
 
-  const groupObj = allGroups.find(item => item.group_name.toLowerCase() === catName.toLowerCase());
-  const groupId = groupObj?.group_id;
+    const groupObj = allGroups.find(item => item.group_name.toLowerCase() === catName.toLowerCase());
+    const groupId = groupObj?.group_id;
 
-  if (!linkObj?.member_id || !groupId) {
-    alert("פרטי קבוצה לא קיימים, מומלץ לפתוח קבוצה חדשה!");
-    return;
-  }
-console.log( {member_id: linkObj.member_id,
-        group_id: groupId});
-
-  try {
-    const res = await fetch("/api/groups/addMemberToGroup", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        member_id: linkObj.member_id,
-        group_id: groupId
-      })
+    if (!linkObj?.member_id || !groupId) {
+      alert("פרטי קבוצה לא קיימים, מומלץ לפתוח קבוצה חדשה!");
+      return;
+    }
+    console.log({
+      member_id: linkObj.member_id,
+      group_id: groupId
     });
 
-    const resText = await res.text();
-    console.log("response from server:", res.status, resText);
-
-    // אם הבקשה הצליחה (200 או 201):
-    if (res.ok) {
-      setUserCategories(prev => [...prev, catName]);
-      setCategoryColors(prevColors => {
-        if (prevColors[catName]) return prevColors;
-        const usedColors = Object.values(prevColors);
-        let nextColor = badgeColors.find(c => !usedColors.includes(c));
-        if (!nextColor) {
-          nextColor = badgeColors[Math.floor(Math.random() * badgeColors.length)];
-        }
-        return { ...prevColors, [catName]: nextColor };
+    try {
+      const res = await fetch("/api/groups/addMemberToGroup", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          member_id: linkObj.member_id,
+          group_id: groupId
+        })
       });
-    } else {
-      alert('הוספה נכשלה: ' + resText);
+
+      const resText = await res.text();
+      console.log("response from server:", res.status, resText);
+
+      if (res.ok) {
+        setUserCategories(prev => [...prev, catName]);
+        setCategoryColors(prevColors => {
+          if (prevColors[catName]) return prevColors;
+          const usedColors = Object.values(prevColors);
+          let nextColor = badgeColors.find(c => !usedColors.includes(c));
+          if (!nextColor) {
+            nextColor = badgeColors[Math.floor(Math.random() * badgeColors.length)];
+          }
+          return { ...prevColors, [catName]: nextColor };
+        });
+      } else {
+        alert('הוספה נכשלה: ' + resText);
+      }
+    } catch (err) {
+      console.error('❌ Error posting group to server:', err);
+      alert('שגיאת רשת או שרת');
     }
-  } catch (err) {
-    console.error('❌ Error posting group to server:', err);
-    alert('שגיאת רשת או שרת');
-  }
-};
+  };
 
   return (
     <div style={{ maxWidth: 400, margin: '2rem auto', textAlign: 'center' }}>
@@ -148,18 +151,26 @@ console.log( {member_id: linkObj.member_id,
         Match Group
       </Button>
 
-      {matchedCategories.length > 0 && (
-        <div style={{ marginTop: '1rem', marginBottom: "3rem" }}>
-          <ManagerAddCategory
-            categories={matchedCategories} allGroups={allGroups}
-            onAdd={handleManagerAdd}
-          />
+      {loading && (
+        <div style={{ margin: '1rem 0' }}>
+          <Spinner animation="border" size="sm" /> Loading...
         </div>
       )}
 
-      {matchedCategories.length === 0 && linkObj && (
-        <p style={{ marginTop: '1rem' }}>No matches</p>
-      )}
+      {!loading && matchedCategories.length > 0 && (
+        <div style={{ marginTop: '1rem', marginBottom: "3rem" }}>
+          <ManagerAddCategory
+            categories={matchedCategories}
+            allGroups={allGroups}
+            onAdd={handleManagerAdd}
+          />
+        </div>
+     )}
+      {!loading && matchedCategories.length === 0 && (
+        <p style={{ marginTop: '1rem' }}>
+          No matches or invalid LinkedIn URL
+        </p>
+     )}
 
       {userCategories.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
@@ -204,3 +215,4 @@ console.log( {member_id: linkObj.member_id,
     </div>
   );
 }
+
