@@ -4,7 +4,7 @@
 
 ---
 
-## 🧠 Overview
+## 📝 Overview
 
 This project was created as part of a social initiative aimed at helping community leaders manage their members efficiently. The system allows managers to:
 
