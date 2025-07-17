@@ -49,7 +49,7 @@ export default function Welcome() {
       <div
         className="p-4 rounded"
         style={{
-          backgroundColor: '#343a40',
+          backgroundColor: 'rgba(52, 58, 64, 0.95)', // במקום '#343a40'
           width: '100%',
           maxWidth: '500px',
           color: '#fff',
@@ -65,8 +65,8 @@ export default function Welcome() {
           Welcome to 4Community
         </h2>
 
-<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-  <input
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <input
     type="url"
     className="form-control"
     placeholder="Enter your LinkedIn URL"
@@ -76,7 +76,7 @@ export default function Welcome() {
       color: '#495057',
       fontSize: '1.2rem',
       padding: '0.75rem',
-      borderRadius: '0.25rem',
+      borderRadius: '0.78rem',
       flex: 1,
     }}
     value={linkedinURL}
@@ -85,13 +85,14 @@ export default function Welcome() {
   <button
     className="btn"
     style={{
-      backgroundColor: hoverSend ? '#dee2e6' : '#adb5bd',
+      backgroundColor: hoverSend ? '#e9ecef' : '#ced4da',
       color: '#000000',
       fontSize: '1rem',
       border: 'none',
       padding: '0.75rem 1rem',
       height: '100%',
       fontWeight: 'bold',
+      borderRadius: '0.9rem',
     }}
     onClick={handleSendURL}
     onMouseEnter={() => setHoverSend(true)}
@@ -103,19 +104,32 @@ export default function Welcome() {
 </div>
 
 {/* כפתור העלאת קובץ */}
-<div style={{ display: 'flex', gap: '0.5rem' }}>
-  <input
-    type="file"
-    accept=".pdf,.doc,.docx"
-    onChange={(e) => setSelectedFile(e.target.files[0])}
+<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+  <label
+    htmlFor="cvUpload"
     style={{
       backgroundColor: '#adb5bd',
       border: '1px solid #6c757d',
-      color: '#495057',
-      padding: '0.5rem',
+      color: '#212529',
+      padding: '0.75rem 1rem',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
       flex: 1,
+      textAlign: 'center',
+      fontWeight: 'bold',
     }}
+  >
+    {selectedFile ? selectedFile.name : 'Choose CV File'}
+  </label>
+
+  <input
+    type="file"
+    id="cvUpload"
+    accept=".pdf,.doc,.docx"
+    onChange={(e) => setSelectedFile(e.target.files[0])}
+    style={{ display: 'none' }}
   />
+
   <button
     className="btn"
     style={{
@@ -124,19 +138,22 @@ export default function Welcome() {
       fontWeight: 'bold',
       padding: '0.75rem 1rem',
       border: 'none',
+      borderRadius: '0.5rem',
     }}
     onClick={() => analyzeAndUpload(selectedFile)}
   >
     Upload CV
   </button>
 </div>
+
         {/* כפתור מילוי ידני */}
         <button
           className="btn"
           style={{
             ...baseButtonStyle,
-            backgroundColor: hoverManual ? '#dee2e6' : '#adb5bd',
+            backgroundColor: hoverManual ? '#e9ecef' : '#ced4da',
             color: '#212529',
+            borderRadius: '0.9rem',
           }}
           onClick={handleManualEntry}
           onMouseEnter={() => setHoverManual(true)}
