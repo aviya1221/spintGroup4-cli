@@ -1,14 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "react-bootstrap";
 
 export default function SaveButton({ getValues }) {
-  const handleClick = async () => {
-    console.log("SaveButton clicked");
-    console.log("getValues function:", getValues);
-    const rawValues = getValues();
-    console.log("Raw values from getValues:", rawValues);
+  const[idMember,setIdMember] = useState(null);
+  async function addMemberToGroup(member_id, group_id) {
+    try {
+      const response = await fetch('/api/groups/addMemberToGroup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_id: member_id,
+          group_id: group_id
+        })
+      });
 
-    // מיפוי השדות לשמות המדויקים שהבקאנד מצפה להם
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error('Failed to add member to group');
+      }
+
+      const result = await response.json();
+      console.log('Success:', result);
+      return result;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
+  }
+
+  async function fetchMember(){
+    try {
+      const response = await fetch('/api/members/addOrUpdateMember', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(values)
+      });
+
+      if (response.ok) {
+        let id = await response.text();
+        setIdMember(id);
+        console.log(idMember);
+        alert("Saved successfully!");
+      } else {
+        alert("Error while saving. Status: " + response.status);
+      }
+    } catch (error) {
+      console.error("Error during save:", error);
+      alert("Failed to connect to server.");
+    }
+  }
+    const rawValues = getValues();
     const values = {
       full_name: rawValues["Full Name"],
       english_name: rawValues["Full Name"],
@@ -27,28 +73,12 @@ export default function SaveButton({ getValues }) {
       admin_notes: rawValues["Admin Notes"] || "",
       additional_info: rawValues["Additional Info"] || ""
     };
-    
-    
-
-    console.log("Values to save:", values);
-
-    try {
-      const response = await fetch('/api/members/addOrUpdateMember', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(values)
-      });
-
-      if (response.ok) {
-        alert("Saved successfully!");
-      } else {
-        alert("Error while saving. Status: " + response.status);
+  const handleClick = async () => {
+    fetchMember();
+    if(idMember !== null){
+      for(let groupId of rawValues.SelectedCategories){
+        addMemberToGroup(idMember,groupId);
       }
-    } catch (error) {
-      console.error("Error during save:", error);
-      alert("Failed to connect to server.");
     }
   };
 
