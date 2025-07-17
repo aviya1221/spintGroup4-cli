@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-export default function ManagerAddCategory({ categories, onAdd }) {
+export default function ManagerAddCategory({ categories, onAdd, allGroups }) {
   const [added, setAdded] = useState({});
 
   const handleAdd = (cat) => {
