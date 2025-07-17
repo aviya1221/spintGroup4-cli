@@ -9,6 +9,8 @@ export default function MatchCategory() {
   const [matchedCategories, setMatchedCategories] = useState([]);
   const [userCategories, setUserCategories] = useState([]);
   const [categoryColors, setCategoryColors] = useState({});
+  const [allGroups,setAllGroups]=useState([]);
+  
 
   const badgeColors = [
     '#00b894', // ירוק טורקיז
@@ -39,6 +41,9 @@ export default function MatchCategory() {
       if (!resGroups.ok) throw new Error(`Server error: ${resGroups.status}`);
       const groups = await resGroups.json();
       const categories = groups.map(g => g.group_name);
+      setAllGroups(groups);
+
+    console.log(groups);
 
       const chatRes = await fetch(
         "https://api.openai.com/v1/chat/completions",
@@ -77,8 +82,35 @@ export default function MatchCategory() {
 
   // הוספה לפרופיל המשתמש + הקצאת צבע + שליחה לשרת
   const handleManagerAdd = async (catName) => {
-    if (!userCategories.includes(catName)) {
-      setUserCategories([...userCategories, catName]);
+  // אל תוסיף ל־userCategories לפני שהשרת מחזיר 200
+  if (userCategories.includes(catName)) return;
+
+  const groupObj = allGroups.find(item => item.group_name.toLowerCase() === catName.toLowerCase());
+  const groupId = groupObj?.group_id;
+
+  if (!linkObj?.member_id || !groupId) {
+    alert("פרטי קבוצה לא קיימים, מומלץ לפתוח קבוצה חדשה!");
+    return;
+  }
+console.log( {member_id: linkObj.member_id,
+        group_id: groupId});
+
+  try {
+    const res = await fetch("/api/groups/addMemberToGroup", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        member_id: linkObj.member_id,
+        group_id: groupId
+      })
+    });
+
+    const resText = await res.text();
+    console.log("response from server:", res.status, resText);
+
+    // אם הבקשה הצליחה (200 או 201):
+    if (res.ok) {
+      setUserCategories(prev => [...prev, catName]);
       setCategoryColors(prevColors => {
         if (prevColors[catName]) return prevColors;
         const usedColors = Object.values(prevColors);
@@ -88,23 +120,14 @@ export default function MatchCategory() {
         }
         return { ...prevColors, [catName]: nextColor };
       });
-      // שליחת הקבוצה שנוספה לשרת
-      try {
-        if (linkObj?.member_id) {
-          await fetch("/api/group/addTogroup", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId: linkObj.member_id,
-              groupId: catName // הוסף רק אם צריך
-            })
-          });
-        }
-      } catch (err) {
-        console.error('❌ Error posting group to server:', err);
-      }
+    } else {
+      alert('הוספה נכשלה: ' + resText);
     }
-  };
+  } catch (err) {
+    console.error('❌ Error posting group to server:', err);
+    alert('שגיאת רשת או שרת');
+  }
+};
 
   return (
     <div style={{ maxWidth: 400, margin: '2rem auto', textAlign: 'center' }}>
@@ -128,7 +151,7 @@ export default function MatchCategory() {
       {matchedCategories.length > 0 && (
         <div style={{ marginTop: '1rem', marginBottom: "3rem" }}>
           <ManagerAddCategory
-            categories={matchedCategories.slice(0, 3)}
+            categories={matchedCategories} allGroups={allGroups}
             onAdd={handleManagerAdd}
           />
         </div>
