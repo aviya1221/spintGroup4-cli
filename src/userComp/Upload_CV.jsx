@@ -4,6 +4,7 @@ import { OpenAI } from 'openai';
 import { useNavigate } from 'react-router-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 const CvUploadContext = createContext();
 
@@ -14,7 +15,7 @@ export function CvUploadProvider({ children }) {
   const navigate = useNavigate();
 
   const openai = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+    apiKey:OPENAI_API_KEY ,
     dangerouslyAllowBrowser: true,
   });
 
@@ -113,7 +114,7 @@ ${content}
       });
 
       if (!res.ok) throw new Error('Server rejected the request');
-
+      localStorage.setItem('ConnectedMember', JSON.stringify(parsed));
       setStatus('Success! Member saved');
       navigate('/user/profile');
     } catch (err) {

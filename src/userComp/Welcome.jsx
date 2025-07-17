@@ -1,3 +1,4 @@
+//src /userComp/Welcome.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCvUpload } from './Upload_CV';
@@ -28,9 +29,10 @@ export default function Welcome() {
         body: JSON.stringify({ linkedin_url: linkedinURL }),
       });
 
-      if (!res.ok) throw new Error('Failed to send URL');
-
-      navigate('/user/profile');
+      if (!res.ok) throw new Error('Failed to send URL');     
+       const data = await res.json();
+       localStorage.setItem('ConnectedMember', JSON.stringify(data));
+       navigate('/user/profile');
     } catch (err) {
       console.error("Error:", err);
     }
