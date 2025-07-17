@@ -28,8 +28,7 @@ export default function UserScreen() {
       prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]
     );
   };
-
-  useEffect(() => {
+ useEffect(() => {
     const stored = localStorage.getItem('ConnectedMember');
     if (stored) {
       try {
@@ -49,6 +48,7 @@ export default function UserScreen() {
       }
     }
   }, []);
+
 
   const getValues = () => ({
     "Full Name": fullName,

@@ -13,21 +13,22 @@ export default function Sidebar() {
 
 
       <div className="d-flex flex-column justify-content-center align-items-center flex-grow-1">
-        <h4 className="text-center mb-4">Menu</h4>
 
       <div className="d-flex flex-column align-items-stretch border-top border-bottom border-secondary">
 
   <Link to="/admin" className="text-white text-decoration-none py-2 border-bottom border-secondary">
-      <img src='/Img/temp.png' style={{ width: '6rem', height: 'auto' }}></img></Link>
+      <img src='/Img/temp.png' style={{ width: '5rem', height: 'auto' }}></img></Link>
+
   <Link to="/admin/members" className="text-white text-decoration-none py-2 border-bottom border-secondary">
-      <img src='/Img/members.png' style={{ width: '6rem', height: 'auto' }}></img></Link>
-  <Link to="/admin" className="text-white text-decoration-none py-2 border-bottom border-secondary">
-     AI</Link>
-  <Link to="/admin/import" className="text-white text-decoration-none py-2">
-      Import Members</Link>
+      <img src='/Img/members.png' style={{ width: '5rem', height: 'auto' }}></img></Link>
+
+  <Link to="/admin/ai" className="text-white text-decoration-none py-2 border-bottom border-secondary">
+      <img src='/Img/ai.png' style={{ width: '5rem', height: 'auto' }}></img></Link>
+
+<Link to="/admin/import" className="text-white text-decoration-none py-2 border-bottom border-secondary">
+      <img src='/Img/import-members.png' style={{ width: '5rem', height: 'auto' }}></img></Link>
       </div>
 
-      
       </div>
 
       <div className="mt-auto text-center">
