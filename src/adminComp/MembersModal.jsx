@@ -13,7 +13,7 @@ export default function MembersModal({ group_id, onClose, show }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/members/getMembersByGroupId/1/${group_id}`);
+        const res = await fetch(`/api/members/getMembersByGroupId/0/${group_id}`);
         if (!res.ok) throw new Error('Failed to fetch members');
         const data = await res.json();
         setMembers(data);
