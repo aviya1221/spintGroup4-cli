@@ -32,7 +32,7 @@ export default function Sidebar() {
       </div>
 
       <div className="mt-auto text-center">
-        <img src='/Img/adminAvatar.png' style={{ width: '5rem', height: 'auto' }} alt="Admin Avatar" />
+       <Link to="/user"> <img src='/Img/adminAvatar.png' style={{ width: '5rem', height: 'auto' }} alt="Admin Avatar" /></Link>
         <div>
           <p className="mb-0">Admin demo</p>
           <p className="mb-0">Community manager</p>

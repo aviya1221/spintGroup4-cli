@@ -1,7 +1,7 @@
 //src /userComp/Welcome.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCvUpload } from './Upload_CV';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCvUpload } from './userButtons/Upload_CV';
 
 
 export default function Welcome() {
@@ -55,12 +55,12 @@ export default function Welcome() {
           color: '#fff',
         }}
       >
-        <img
+       <Link to="/admin"> <img
           src="/Img/logo.png"
           alt="Logo"
           className="d-block mx-auto"
           style={{ maxWidth: '140px', height: 'auto' }}
-        />
+        /></Link>
         <h2 className="text-center mt-2 mb-4" style={{ fontSize: '2rem' }}>
           Welcome to 4Community
         </h2>

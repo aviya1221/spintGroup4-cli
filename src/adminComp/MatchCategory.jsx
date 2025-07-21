@@ -11,7 +11,7 @@ export default function MatchCategory() {
   const [userCategories, setUserCategories] = useState([]);
   const [categoryColors, setCategoryColors] = useState({});
   const [allGroups, setAllGroups] = useState([]);
-  const [loading, setLoading] = useState(false); // ← הוספת state לטעינה
+  const [loading, setLoading] = useState(false); 
 
   const badgeColors = [
     '#00b894',
@@ -28,7 +28,7 @@ export default function MatchCategory() {
   };
 
   const handleClick = async () => {
-    setLoading(true); // ← מתחילים טעינה
+    setLoading(true); 
     try {
       const response = await fetch("/api/members/postDetailsFromLinkedIn", {
         method: 'POST',
@@ -80,7 +80,7 @@ export default function MatchCategory() {
     } catch (err) {
       console.error('❌ Error in handleClick:', err);
     } finally {
-      setLoading(false); // ← מסיימים טעינה
+      setLoading(false); 
     }
   };
 
@@ -136,6 +136,7 @@ export default function MatchCategory() {
     <div style={{ maxWidth: 400, margin: '2rem auto', textAlign: 'center' }}>
       <input
         type="text"
+        
         placeholder="Paste LinkedIn URL"
         value={inputUrl}
         onChange={handleChange}
