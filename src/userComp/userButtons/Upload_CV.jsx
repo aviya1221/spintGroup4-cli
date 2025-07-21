@@ -19,7 +19,7 @@ export function CvUploadProvider({ children }) {
     dangerouslyAllowBrowser: true,
   });
 
-
+  // קריאה לפי סוג קובץ
   const extractTextFromFile = async (file) => {
     const ext = file.name.split('.').pop().toLowerCase();
 
@@ -41,7 +41,7 @@ export function CvUploadProvider({ children }) {
       return result.value;
     }
 
-
+    // ברירת מחדל: טקסט רגיל
     return await file.text();
   };
 
@@ -57,6 +57,8 @@ export function CvUploadProvider({ children }) {
 
       setStatus('Sending to OpenAI...');
       const prompt = `
+נתח את קובץ קורות החיים והחזר JSON מדויק בפורמט הבא, עם ערכים אמיתיים לפי סוג טיפוס:
+
 {
   "full_name": "",
   "english_name": "",
@@ -76,7 +78,27 @@ export function CvUploadProvider({ children }) {
   "admin_notes": ""
 }
 
+שים לב:
+- אם שדה חסר, תכניס ערך מתאים ריק לפי הטיפוס ("" או false או 0).
+- אם יש טעות או בעיה בקובץ – החזר שגיאה ברורה.
+אם יש רק שם פרטי בלבד, הכנס אותו לשדה full name 
+את השם באנגלית הכנס לשדה english name
+אם יש תמונה, הכנס את כתובת ה-URL שלה לשדה picture
+אם יש מספר טלפון, הכנס אותו לשדה phone
+אם יש כתובת דוא"ל, הכנס אותה לשדה email
+אם יש עיר, הכנס אותה לשדה city
+אם יש תפקיד, הכנס אותו לשדה role
+אם יש חברה נוכחית, הכנס אותה לשדה current_company
+אם יש ניסיון, הכנס את מספר השנים לשדה years_of_experience
+אם יש קישור ללינקדאין, הכנס אותו לשדה linkedin_url
+אם יש קישור לפייסבוק, הכנס אותו לשדה facebook_url
+אם יש ערך לקהילה, הכנס אותו לשדה community_value
+אם יש כישורים, הכנס אותם לשדה skills
+אם יש מידע נוסף, הכנס אותו לשדה additional_info
+אם יש רצון לקבל עדכונים, הכנס true לשדה wants_updates
+אם יש הערות מנהל, הכנס אותן לשדה admin_notes  
 
+תוכן הקובץ:
 """
 ${content}
 """
