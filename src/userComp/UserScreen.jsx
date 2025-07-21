@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import PersonalInfo from "./PersonalInfo";
 import JobInfo from "./JobInfo";
 import CategorySelector from "./CategorySelector";
-import SaveButton from "./SaveButton.jsx";
+import SaveButton from "./userButtons/SaveButton.jsx";
 import AgreeButton from "./userButtons/AgreeButton.jsx";
 
 export default function UserScreen() {

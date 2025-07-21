@@ -1,4 +1,4 @@
-// src/components/ManagerAddCategory.js
+
 
 import React, { useState } from 'react';
 
@@ -10,7 +10,7 @@ export default function ManagerAddCategory({ categories, onAdd, allGroups }) {
     onAdd(cat);
     setTimeout(() => {
       setAdded(prev => ({ ...prev, [cat]: false }));
-    }, 1100); // הצג "נוסף" לשנייה
+    }, 1100); 
   };
 
   return (

@@ -19,7 +19,7 @@ export function CvUploadProvider({ children }) {
     dangerouslyAllowBrowser: true,
   });
 
-  // קריאה לפי סוג קובץ
+
   const extractTextFromFile = async (file) => {
     const ext = file.name.split('.').pop().toLowerCase();
 
@@ -41,7 +41,7 @@ export function CvUploadProvider({ children }) {
       return result.value;
     }
 
-    // ברירת מחדל: טקסט רגיל
+
     return await file.text();
   };
 
@@ -57,8 +57,6 @@ export function CvUploadProvider({ children }) {
 
       setStatus('Sending to OpenAI...');
       const prompt = `
-נתח את קובץ קורות החיים והחזר JSON מדויק בפורמט הבא, עם ערכים אמיתיים לפי סוג טיפוס:
-
 {
   "full_name": "",
   "english_name": "",
@@ -78,11 +76,7 @@ export function CvUploadProvider({ children }) {
   "admin_notes": ""
 }
 
-שים לב:
-- אם שדה חסר, תכניס ערך מתאים ריק לפי הטיפוס ("" או false או 0).
-- אם יש טעות או בעיה בקובץ – החזר שגיאה ברורה.
 
-תוכן הקובץ:
 """
 ${content}
 """
